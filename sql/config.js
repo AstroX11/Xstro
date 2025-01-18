@@ -28,6 +28,18 @@ if (!fs.existsSync(store)) {
 const readConfig = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writeConfig = (config) => fs.writeFileSync(store, JSON.stringify(config, null, 2));
 
+/**
+ * Ensures the configuration file exists, creating it with default settings if not.
+ * 
+ * @returns {Object} The configuration object, either read from the existing file or newly created.
+ * @description Checks if a configuration file exists. If not, creates a new configuration 
+ * with default settings for various application parameters such as auto-reading, 
+ * command reactions, prefix, and disabled commands.
+ * 
+ * @example
+ * // Returns configuration object with default or existing settings
+ * const config = await ensureConfigExists();
+ */
 async function ensureConfigExists() {
   let config = readConfig();
   if (!config) {
@@ -48,6 +60,27 @@ async function ensureConfigExists() {
   return config;
 }
 
+/**
+ * Updates a specific configuration field in the configuration file.
+ * 
+ * @param {string} field - The configuration field to update.
+ * @param {(boolean|string|string[])} value - The new value for the configuration field.
+ * @returns {Object} The updated configuration object.
+ * 
+ * @description
+ * This function allows updating different configuration settings:
+ * - For 'disabledCmds', it merges new commands with existing ones, ensuring uniqueness.
+ * - For boolean fields, it converts the value to a boolean.
+ * - For 'PREFIX', it preserves the exact string value.
+ * 
+ * @example
+ * // Update autoRead to true
+ * await updateConfig('autoRead', true);
+ * 
+ * @example
+ * // Add new disabled commands
+ * await updateConfig('disabledCmds', ['ping', 'help']);
+ */
 async function updateConfig(field, value) {
   let config = await ensureConfigExists();
 
@@ -65,6 +98,24 @@ async function updateConfig(field, value) {
   return config;
 }
 
+/**
+ * Retrieves the current configuration settings.
+ * 
+ * @async
+ * @returns {Object} A subset of configuration properties including:
+ * - `autoRead`: Boolean flag for automatic reading
+ * - `autoStatusRead`: Boolean flag for automatic status reading
+ * - `cmdReact`: Boolean flag for command reactions
+ * - `cmdRead`: Boolean flag for command reading
+ * - `mode`: Current operational mode
+ * - `PREFIX`: Command prefix
+ * - `disabledCmds`: Array of disabled commands (defaults to empty array)
+ * - `autolikestatus`: Boolean flag for automatic status liking
+ * - `disablegc`: Boolean flag to disable group chat functionality
+ * - `disabledm`: Boolean flag to disable direct messaging
+ * 
+ * @throws {Error} If configuration cannot be read or initialized
+ */
 async function getConfig() {
   const config = await ensureConfigExists();
   return {
@@ -81,6 +132,15 @@ async function getConfig() {
   };
 }
 
+/**
+ * Adds a command to the list of disabled commands in the configuration.
+ * @async
+ * @param {string} cmd - The command to be disabled.
+ * @returns {Object} An object indicating the result of the operation:
+ *  - `success`: Boolean indicating whether the command was successfully disabled
+ *  - `message`: A descriptive message about the operation's outcome
+ * @throws {Error} If there are issues reading or writing the configuration file
+ */
 async function addDisabledCmd(cmd) {
   let config = await ensureConfigExists();
   const currentCmds = config.disabledCmds || [];
@@ -95,6 +155,15 @@ async function addDisabledCmd(cmd) {
   return { success: true, message: `_${cmd} command disabled_` };
 }
 
+/**
+ * Removes a command from the list of disabled commands.
+ * @async
+ * @param {string} cmd - The command to be re-enabled.
+ * @returns {Promise<Object>} An object indicating the result of the operation.
+ * @returns {boolean} returns.success - Indicates whether the command was successfully enabled.
+ * @returns {string} returns.message - A descriptive message about the operation's outcome.
+ * @throws {Error} Throws an error if there are issues reading or writing the configuration.
+ */
 async function removeDisabledCmd(cmd) {
   let config = await ensureConfigExists();
   const currentCmds = config.disabledCmds || [];
@@ -109,6 +178,11 @@ async function removeDisabledCmd(cmd) {
   return { success: true, message: `_${cmd} command enabled_` };
 }
 
+/**
+ * Checks if a specific command is currently disabled.
+ * @param {string} cmd - The command to check for disabled status.
+ * @returns {Promise<boolean>} True if the command is disabled, false otherwise.
+ */
 async function isCmdDisabled(cmd) {
   const config = await ensureConfigExists();
   const currentCmds = config.disabledCmds || [];

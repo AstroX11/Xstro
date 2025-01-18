@@ -82,6 +82,13 @@ bot(
   }
 );
 
+/**
+ * Converts a duration in milliseconds to a human-readable time format.
+ * @param {number} ms - Duration in milliseconds to be formatted.
+ * @returns {string} Formatted duration string with hours, minutes, and seconds.
+ * @example
+ * formatDuration(3661000) // Returns "1hr 1mins 1sec"
+ */
 function formatDuration(ms) {
   const seconds = Math.floor(ms / 1000) % 60;
   const minutes = Math.floor(ms / (1000 * 60)) % 60;

@@ -11,10 +11,17 @@ const readGreetings = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writeGreetings = (greetings) => fs.writeFileSync(store, JSON.stringify(greetings, null, 2));
 
 /**
- * Adds or updates a welcome greeting.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @param {boolean} action - The status (on/off).
- * @param {string|object|null} message - The message for the greeting, can be a string or JSON object.
+ * Adds or updates a welcome greeting for a specific chat or user.
+ * @param {string} jid - The unique identifier for the chat or user.
+ * @param {boolean} action - Whether the welcome greeting is enabled (true) or disabled (false).
+ * @param {string|object|null} message - The welcome message to be displayed. Can be a string, JSON object, or null.
+ * @throws {Error} If file writing fails during greeting update.
+ * @example
+ * // Enable welcome message for a group
+ * await addWelcome('group123@chat.whatsapp.com', true, 'Welcome to the group!')
+ * 
+ * // Disable welcome message
+ * await addWelcome('group123@chat.whatsapp.com', false, null)
  */
 export async function addWelcome(jid, action, message) {
   const greetings = readGreetings();
@@ -33,10 +40,17 @@ export async function addWelcome(jid, action, message) {
 }
 
 /**
- * Adds or updates a goodbye greeting.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @param {boolean} action - The status (on/off).
- * @param {string|object|null} message - The message for the greeting, can be a string or JSON object.
+ * Adds or updates a goodbye greeting for a specific chat or user.
+ * @param {string} jid - The unique identifier for the chat or user.
+ * @param {boolean} action - Whether the goodbye greeting is enabled (true) or disabled (false).
+ * @param {string|object|null} message - The goodbye message to be displayed. Can be a string, JSON object, or null.
+ * @throws {Error} If file writing fails during greeting update.
+ * @example
+ * // Enable goodbye greeting with a simple message
+ * await addGoodbye('user123@example.com', true, 'See you later!')
+ * 
+ * // Disable goodbye greeting
+ * await addGoodbye('user123@example.com', false, null)
  */
 export async function addGoodbye(jid, action, message) {
   const greetings = readGreetings();
@@ -55,9 +69,10 @@ export async function addGoodbye(jid, action, message) {
 }
 
 /**
- * Retrieves the welcome greeting for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<{action: boolean, message: string|null}>} The action and message for the welcome greeting.
+ * Retrieves the welcome greeting configuration for a specific chat or user.
+ * @param {string} jid - The unique identifier (chat ID or JID) to retrieve welcome greeting for.
+ * @returns {Promise<{action: boolean, message: string|null}>} An object containing the welcome greeting status and message.
+ * @description Searches the greetings configuration for a matching JID and welcome type, returning the greeting details or default values if not found.
  */
 export async function getWelcome(jid) {
   const greetings = readGreetings();
@@ -66,9 +81,10 @@ export async function getWelcome(jid) {
 }
 
 /**
- * Retrieves the goodbye greeting for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<{action: boolean, message: string|null}>} The action and message for the goodbye greeting.
+ * Retrieves the configured goodbye greeting for a specific chat or user.
+ * @param {string} jid - The unique identifier (chat ID or JID) to retrieve the goodbye greeting for.
+ * @returns {Promise<{action: boolean, message: string|null}>} An object containing the goodbye greeting status and message, defaulting to disabled and null if no greeting is configured.
+ * @description Searches the greetings configuration for a matching JID and goodbye type, returning the associated action and message.
  */
 export async function getGoodbye(jid) {
   const greetings = readGreetings();
@@ -77,9 +93,11 @@ export async function getGoodbye(jid) {
 }
 
 /**
- * Checks if the welcome greeting is enabled for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<boolean>} Whether the welcome greeting is on.
+ * Checks if the welcome greeting is enabled for a specific JID.
+ * @param {string} jid - The unique identifier (chat ID or JID) to check welcome greeting status.
+ * @returns {Promise<boolean>} A promise that resolves to true if welcome greeting is enabled, false otherwise.
+ * @description Searches through stored greetings to determine if a welcome greeting is active for the given JID.
+ * If no matching greeting is found, returns false by default.
  */
 export async function isWelcomeOn(jid) {
   const greetings = readGreetings();
@@ -87,11 +105,9 @@ export async function isWelcomeOn(jid) {
   return data ? data.action : false;
 }
 
-/**
- * Checks if the goodbye greeting is enabled for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<boolean>} Whether the goodbye greeting is on.
- */
+The existing docstring for the `isGoodByeOn` function is already well-structured and follows the JSDocs conventions. It provides a clear description, specifies the parameter type and purpose, and indicates the return type and meaning. Therefore:
+
+KEEP_EXISTING
 export async function isGoodByeOn(jid) {
   const greetings = readGreetings();
   const data = greetings.find((greeting) => greeting.jid === jid && greeting.type === 'goodbye');
@@ -99,8 +115,13 @@ export async function isGoodByeOn(jid) {
 }
 
 /**
- * Deletes the welcome greeting for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
+ * Deletes the welcome greeting for a specified JID and sets a default disabled state.
+ * 
+ * @param {string} jid - The unique identifier (chat ID or JID) for which the welcome greeting will be deleted.
+ * @description Removes any existing welcome greeting for the given JID and adds a new entry with the welcome greeting disabled.
+ * @example
+ * // Deletes welcome greeting for a specific chat
+ * await delWelcome('user123@example.com');
  */
 export async function delWelcome(jid) {
   const greetings = readGreetings();
@@ -117,8 +138,16 @@ export async function delWelcome(jid) {
 }
 
 /**
- * Deletes the goodbye greeting for a given JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
+ * Deletes the goodbye greeting for a specified JID.
+ * 
+ * @param {string} jid - The unique identifier (chat ID or JID) for which the goodbye greeting will be deleted.
+ * @description Removes any existing goodbye greeting for the given JID and replaces it with a default disabled greeting.
+ * 
+ * @example
+ * // Delete goodbye greeting for a specific chat
+ * await delGoodBye('user123@example.com');
+ * 
+ * @throws {Error} Potential errors during file reading or writing operations.
  */
 export async function delGoodBye(jid) {
   const greetings = readGreetings();

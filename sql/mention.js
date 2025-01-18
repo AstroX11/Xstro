@@ -11,10 +11,13 @@ const readMentions = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writeMentions = (mentions) => fs.writeFileSync(store, JSON.stringify(mentions, null, 2));
 
 /**
- * Sets a mention message for a specific JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @param {Object} message - The message data to associate with the JID.
- * @returns {Promise<boolean>} - Always returns true upon success.
+ * Sets or updates a mention for a specific JID in the mentions storage.
+ * @param {string} jid - The unique identifier (chat ID or JID) to associate with the mention.
+ * @param {Object} message - The message object to be stored for the given JID.
+ * @returns {Promise<boolean>} Indicates whether the mention was successfully set or updated.
+ * @description Adds a new mention or updates an existing mention in the JSON storage. 
+ * If a mention for the JID already exists, its message is replaced. If no mention exists, 
+ * a new mention is created. The changes are immediately written to the mentions.json file.
  */
 export async function setMention(jid, message) {
   const mentions = readMentions();
@@ -31,9 +34,17 @@ export async function setMention(jid, message) {
 }
 
 /**
- * Deletes a mention for a specific JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<boolean>} - Returns true if deletion was successful, false otherwise.
+ * Deletes a mention associated with a specific JID from the mentions storage.
+ * 
+ * @param {string} jid - The unique identifier (chat ID or JID) for which the mention should be deleted.
+ * @returns {Promise<boolean>} Indicates whether the mention was successfully deleted:
+ *  - `true` if a mention was found and removed
+ *  - `false` if no matching mention was found
+ * 
+ * @example
+ * // Delete a mention for a specific JID
+ * const deleted = await delMention('user123@example.com');
+ * console.log(deleted); // true or false
  */
 export async function delMention(jid) {
   const mentions = readMentions();
@@ -58,9 +69,18 @@ export async function isMention(jid) {
 }
 
 /**
- * Retrieves the mention message for a specific JID.
- * @param {string} jid - The unique identifier (chat ID or JID).
- * @returns {Promise<Object|null>} - The message data if it exists, otherwise null.
+ * Retrieves the mention message associated with a specific JID.
+ * @param {string} jid - The unique identifier (chat ID or JID) to search for.
+ * @returns {Promise<Object|null>} A promise that resolves to the message object if a mention exists for the given JID, or null if no mention is found.
+ * @async
+ * @example
+ * // Retrieve a mention for a specific JID
+ * const message = await getMention('user123@example.com');
+ * if (message) {
+ *   console.log('Mention found:', message);
+ * } else {
+ *   console.log('No mention exists for this JID');
+ * }
  */
 export async function getMention(jid) {
   const mentions = readMentions();

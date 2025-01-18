@@ -2,6 +2,18 @@ import { getGoodbye, getWelcome } from '#sql';
 import { XSTRO } from '#utils';
 import { getBuffer } from 'xstro-utils';
 
+/**
+ * Handles welcome and goodbye messages for group members in a chat application.
+ * @async
+ * @param {Object} [update={}] - Object containing group update information.
+ * @param {string} update.Group - The group identifier.
+ * @param {string} update.action - The type of group action ('add' or 'remove').
+ * @param {string[]} update.participants - List of participants involved in the action.
+ * @param {Object} client - The chat client for sending messages and retrieving group metadata.
+ * @returns {Promise<void>}
+ * @description Sends personalized welcome or goodbye messages when members join or leave a group.
+ * Supports custom message templates with dynamic placeholders and optional profile picture attachments.
+ */
 export async function Greetings(update = {}, client) {
   const welcomesettings = await getWelcome(update.Group);
   const goodbyesettings = await getGoodbye(update.Group);

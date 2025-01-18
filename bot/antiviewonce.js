@@ -1,6 +1,22 @@
 import { getSettings } from '#sql';
 import { isJidGroup } from 'baileys';
 
+/**
+ * Processes and relays view-once messages, allowing them to be viewed multiple times.
+ * 
+ * @param {Object} msg - The incoming message object with view-once property.
+ * @returns {Promise<void>} A promise that resolves after processing the message.
+ * 
+ * @description
+ * This function handles view-once messages based on configured settings:
+ * - Checks if the message has a view-once property
+ * - Verifies if the anti-view-once feature is enabled
+ * - Validates message type (group or direct message) against settings
+ * - Removes view-once restriction and adds context information
+ * - Relays the modified message back to the original sender
+ * 
+ * @throws {Error} Potential errors during settings retrieval or message relay
+ */
 export async function AntiViewOnce(msg) {
   if (!msg.viewonce) return;
 

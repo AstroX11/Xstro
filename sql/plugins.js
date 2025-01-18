@@ -11,9 +11,14 @@ const readPlugins = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writePlugins = (plugins) => fs.writeFileSync(store, JSON.stringify(plugins, null, 2));
 
 /**
- * Adds a new plugin to the database.
- * @param {string} name - The name of the plugin.
- * @returns {Promise<Object>} - The added plugin.
+ * Adds a new plugin to the plugins storage.
+ * @param {string} name - The unique name of the plugin to be added.
+ * @returns {Promise<Object>} A new plugin object with the specified name.
+ * @throws {Error} If a plugin with the same name already exists.
+ * @example
+ * // Add a new plugin
+ * const plugin = await addPlugin('my-awesome-plugin');
+ * // plugin will be { name: 'my-awesome-plugin' }
  */
 export async function addPlugin(name) {
   const plugins = readPlugins();
@@ -30,10 +35,14 @@ export async function addPlugin(name) {
 }
 
 /**
- * Updates an existing plugin by its name.
- * @param {string} name - The name of the plugin to update.
- * @param {string} newName - The new name for the plugin.
- * @returns {Promise<Object>} - The updated plugin.
+ * Updates an existing plugin's name in the plugins store.
+ * @param {string} name - The current name of the plugin to be updated.
+ * @param {string} newName - The new name to assign to the plugin.
+ * @returns {Promise<Object>} The plugin object with the updated name.
+ * @throws {Error} Throws an error if the plugin with the specified name cannot be found.
+ * @example
+ * // Update a plugin named 'oldPlugin' to 'newPlugin'
+ * const updatedPlugin = await updatePlugin('oldPlugin', 'newPlugin');
  */
 export async function updatePlugin(name, newName) {
   const plugins = readPlugins();
@@ -49,9 +58,10 @@ export async function updatePlugin(name, newName) {
 }
 
 /**
- * Removes a plugin from the database.
- * @param {string} name - The name of the plugin to remove.
- * @returns {Promise<boolean>} - Returns true if the plugin was removed, false otherwise.
+ * Removes a plugin from the plugins storage by its name.
+ * @param {string} name - The unique name of the plugin to be removed.
+ * @returns {Promise<boolean>} Indicates whether the plugin was successfully removed.
+ * @throws {Error} If an issue occurs during plugin removal process.
  */
 export async function removePlugin(name) {
   const plugins = readPlugins();
@@ -67,8 +77,9 @@ export async function removePlugin(name) {
 }
 
 /**
- * Retrieves all plugins from the database.
- * @returns {Promise<Array>} - An array of all plugins.
+ * Retrieves all plugins from the JSON storage.
+ * @returns {Promise<Array>} An array containing all stored plugins.
+ * @throws {Error} If there is an issue reading the plugins file.
  */
 export async function getPlugins() {
   return readPlugins();

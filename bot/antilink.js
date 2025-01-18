@@ -16,9 +16,20 @@ function containsURL(str) {
 }
 
 /**
- * Handles the Antilink functionality for group chats.
- *
- * @param {object} msg - The message object to process.
+ * Handles the Antilink functionality for group chats by detecting and managing messages containing URLs.
+ * 
+ * @param {object} msg - The message object to be processed for antilink checks.
+ * @async
+ * @description Performs the following actions based on group antilink configuration:
+ * - Checks if the message is from a group chat
+ * - Validates message content
+ * - Skips processing for group owners, sudo users, and admins
+ * - Detects URLs in the message
+ * - Applies configured actions: delete, kick, or warn
+ * 
+ * @returns {Promise<void>} A promise that resolves after processing the message
+ * 
+ * @throws {Error} Potential errors during message processing or group management
  */
 export async function Antilink(msg) {
   const jid = msg.from;

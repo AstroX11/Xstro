@@ -35,6 +35,18 @@ bot(
   }
 );
 
+/**
+ * Converts a time string to a timestamp for the current day.
+ * @param {string} timeStr - Time string in 'hh:mmam' or 'hh:mmpm' format.
+ * @returns {number} Timestamp in milliseconds since the epoch.
+ * @throws {Error} If the time string does not match the expected format.
+ * @example
+ * // Returns timestamp for 2:30 PM today
+ * timeToTimestamp('2:30pm')
+ * @example
+ * // Returns timestamp for 9:45 AM today
+ * timeToTimestamp('9:45am')
+ */
 function timeToTimestamp(timeStr) {
   const match = timeStr.match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
   if (!match) throw new Error("Invalid time format. Use 'hh:mmam' or 'hh:mmpm'.");

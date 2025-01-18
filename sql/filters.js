@@ -55,9 +55,10 @@ export async function removeFilter(type, text) {
 }
 
 /**
- * Retrieves filters by type from the JSON-based database.
- * @param {string} type - The filter type ('dm' or 'gc')
- * @returns {Promise<Array<{ word: string, response: string }>>} - An array of filters.
+ * Retrieves filters for a specific type from the filters database.
+ * @param {string} type - The type of filter to retrieve, either 'dm' (direct message) or 'gc' (group chat).
+ * @returns {Promise<Array<{ word: string, response: string }>>} An array of filters matching the specified type, with each filter containing the trigger word and its corresponding response.
+ * @throws {Error} If there's an issue reading the filters file.
  */
 export async function getFilters(type) {
   const filters = readFilters();

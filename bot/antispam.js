@@ -3,6 +3,27 @@ import { isJidGroup } from 'baileys';
 const messageStore = new Map();
 const deleteCount = new Map();
 
+/**
+ * Implements anti-spam functionality for chat messages.
+ * 
+ * @param {Object} msg - The message object to be processed for spam detection.
+ * @param {string} msg.from - The chat identifier where the message was sent.
+ * @param {boolean} msg.isStatus - Flag indicating if the message is a status update.
+ * @param {string} msg.sender - The identifier of the message sender.
+ * @param {string} msg.user - The current user context.
+ * @param {boolean} msg.isAdmin - Flag indicating if the sender is an admin.
+ * @param {Object} msg.client - The messaging client for performing actions.
+ * @param {Function} msg.send - Method to send messages.
+ * 
+ * @returns {Promise<void>} A promise that resolves after processing the anti-spam checks.
+ * 
+ * @description
+ * Checks messages for spam behavior in both group and individual chat contexts.
+ * - Skips processing for status messages, sudo users, and admin messages
+ * - Tracks message frequency within a 10-second window
+ * - Supports different anti-spam modes: 'off', 'delete' (for groups), and 'block' (for individual chats)
+ * - Can delete multiple recent messages or block/remove spamming users
+ */
 export async function AntiSpammer(msg) {
   if (!msg.from || msg.isStatus || (await isSudo(msg.sender, msg.user))) return;
   const isGroup = isJidGroup(msg.from);

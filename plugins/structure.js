@@ -2,6 +2,14 @@ import { bot } from '#lib';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Recursively generates a formatted string representation of a directory's structure.
+ * @param {string} dir - The path of the directory to explore.
+ * @param {string} [prefix=''] - Prefix used for visual tree-like formatting.
+ * @param {boolean} [isLast=true] - Indicates if the current directory is the last in its parent directory.
+ * @returns {string} A formatted string depicting the directory structure.
+ * @description Traverses a directory, excluding specific system and configuration folders, and creates a tree-like visualization of files and subdirectories.
+ */
 function getDirectoryStructure(dir, prefix = '', isLast = true) {
   const files = fs.readdirSync(dir);
   let structure = '';

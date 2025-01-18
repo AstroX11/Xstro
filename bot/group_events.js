@@ -1,6 +1,19 @@
 import { isGroupEventEnabled } from '#sql';
 import { getBuffer } from 'xstro-utils';
 
+/**
+ * Handles group participant promotion and demotion events.
+ * @async
+ * @param {Object} events - The group event details.
+ * @param {string} events.Group - The group identifier.
+ * @param {string[]} events.participants - List of participants involved in the event.
+ * @param {string} events.by - The user who performed the action.
+ * @param {string} events.action - The type of event ('promote' or 'demote').
+ * @param {Object} client - The messaging client for sending notifications.
+ * @returns {Promise<void>}
+ * @description Sends a notification to the group when a participant is promoted or demoted, 
+ * including their profile picture if available. Only triggers if group events are enabled.
+ */
 export async function GroupEvents(events, client) {
   if (!(await isGroupEventEnabled(events.Group))) return;
 
@@ -41,6 +54,20 @@ export async function GroupEvents(events, client) {
   }
 }
 
+/**
+ * Handles various group update events and sends notifications about changes.
+ * @param {Object} update - The group update details.
+ * @param {string} update.id - The group's unique identifier.
+ * @param {string} [update.subject] - New group name, if changed.
+ * @param {string} [update.desc] - New group description, if updated.
+ * @param {boolean} [update.restrict] - Group info editing restrictions status.
+ * @param {number} [update.ephemeralDuration] - Disappearing message duration.
+ * @param {boolean} [update.joinApprovalMode] - Status of admin approval for new members.
+ * @param {boolean} [update.memberAddMode] - Mode for adding new group members.
+ * @param {string} [update.author] - User who made the group changes.
+ * @param {Object} client - Messaging platform client for sending notifications.
+ * @returns {Promise<void>} A promise that resolves when the notification is sent or skipped.
+ */
 export async function GroupEventPartial(update, client) {
   if (!(await isGroupEventEnabled(update.id))) return;
 

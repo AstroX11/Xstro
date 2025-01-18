@@ -10,6 +10,13 @@ if (!fs.existsSync(store)) {
 const readDB = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writeDB = (data) => fs.writeFileSync(store, JSON.stringify(data, null, 2));
 
+/**
+ * Sets the auto-react status in the database.
+ * @param {boolean} status - The desired auto-react status (true to enable, false to disable).
+ * @returns {Object} An object indicating the operation's success and the new status.
+ * @property {boolean} success - Indicates whether the status was successfully updated.
+ * @property {string} message - A human-readable message describing the new auto-react status.
+ */
 async function setAutoReactStatus(status) {
   const db = readDB();
   db.status = status;
@@ -21,6 +28,10 @@ async function setAutoReactStatus(status) {
   };
 }
 
+/**
+ * Retrieves the current auto-react status from the JSON database.
+ * @returns {boolean} The current auto-react status (true if enabled, false if disabled).
+ */
 async function getAutoReactStatus() {
   const db = readDB();
   return db.status;

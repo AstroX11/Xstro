@@ -11,10 +11,11 @@ const readNotes = () => JSON.parse(fs.readFileSync(store, 'utf8'));
 const writeNotes = (notes) => fs.writeFileSync(store, JSON.stringify(notes, null, 2));
 
 /**
- * Adds a new note to the database.
- * @param {string} title - The title of the note.
- * @param {string} content - The content of the note.
- * @returns {Promise<Object>} - The created note.
+ * Adds a new note to the JSON file storage.
+ * @param {string} title - The title of the note. Must not be empty.
+ * @param {string} content - The content of the note. Can be an empty string.
+ * @returns {Promise<Object>} A newly created note object with auto-generated ID and timestamp.
+ * @throws {Error} If title is not provided or is an empty string.
  */
 export async function addNote(title, content) {
   const notes = readNotes();
@@ -31,10 +32,14 @@ export async function addNote(title, content) {
 }
 
 /**
- * Updates an existing note by its ID.
- * @param {number} id - The ID of the note to update.
- * @param {Object} updates - The updates to apply to the note.
- * @returns {Promise<Object>} - The updated note.
+ * Updates an existing note by its unique identifier.
+ * @param {number} id - The unique identifier of the note to be updated.
+ * @param {Object} updates - An object containing the properties to modify in the note.
+ * @throws {Error} Throws an error if no note is found with the specified ID.
+ * @returns {Promise<Object>} The updated note with original creation timestamp preserved.
+ * @example
+ * // Update a note's content
+ * const updatedNote = await updateNote(1, { content: 'New note content' });
  */
 export async function updateNote(id, updates) {
   const notes = readNotes();
@@ -51,9 +56,10 @@ export async function updateNote(id, updates) {
 }
 
 /**
- * Removes a note by its ID.
- * @param {number} id - The ID of the note to delete.
- * @returns {Promise<boolean>} - Returns true if deletion was successful, false otherwise.
+ * Removes a note from the notes storage by its unique identifier.
+ * @param {number} id - The unique identifier of the note to be deleted.
+ * @returns {Promise<boolean>} Indicates whether the note was successfully removed.
+ * @throws {Error} If there are issues with file system operations during note removal.
  */
 export async function removeNote(id) {
   const notes = readNotes();
@@ -69,8 +75,9 @@ export async function removeNote(id) {
 }
 
 /**
- * Retrieves all notes.
- * @returns {Promise<Array>} - An array of all notes.
+ * Retrieves all notes from the JSON storage.
+ * @returns {Promise<Array>} A promise that resolves to an array of all stored notes.
+ * @throws {Error} If there is an issue reading the notes file.
  */
 export async function getNotes() {
   return readNotes();
