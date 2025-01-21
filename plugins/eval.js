@@ -12,30 +12,10 @@ bot(
     if (!code) return message.send('_Provide code to evaluate_');
     try {
       const result = await eval(`(async () => { ${code} })()`);
-      const output =
-        result === undefined
-          ? 'undefined'
-          : result === null
-            ? 'null'
-            : typeof result === 'function'
-              ? result.toString()
-              : JSON.stringify(
-                  result,
-                  (key, value) => {
-                    if (value === undefined) return 'undefined';
-                    if (value === null) return 'null';
-                    if (typeof value === 'function') return value.toString();
-                    return value;
-                  },
-                  2
-                );
-
-      return await message.send(`*Result:*\n\`\`\`${output}\`\`\``, {
-        type: 'text',
-      });
+      return await message.send(result);
     } catch (error) {
       const errorMessage = error.stack || error.message || String(error);
-      await message.send(`*Error:*\n\`\`\`${errorMessage}\`\`\``);
+      await message.send(`*Error:*\n\n${errorMessage}`);
     }
   }
 );
