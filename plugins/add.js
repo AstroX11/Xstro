@@ -10,7 +10,7 @@ bot(
     desc: 'Adds a user to the group',
     type: 'group',
   },
-  async (message, match) => {
+  async (message, match, { groupMetadata, profilePictureUrl, query }) => {
     if (!(await message.isUserAdmin())) return;
     const jid = await message.getUserJid(match);
     await delay(3000);
@@ -20,10 +20,10 @@ bot(
     await delay(3000);
 
     try {
-      const pp = await message.client.profilePictureUrl(message.jid).catch(() => null);
+      const pp = await profilePictureUrl(message.jid).catch(() => null);
       const jpegThumbnail = pp ? await (await fetch(pp)).buffer() : Buffer.alloc(0);
 
-      const response = await message.client.query({
+      const response = await query({
         tag: 'iq',
         attrs: { type: 'set', xmlns: 'w:g2', to: message.jid },
         content: [
@@ -41,7 +41,7 @@ bot(
       const invite_code = content.attrs.code;
       const invite_code_exp = content.attrs.expiration;
 
-      const gName = await message.client.groupMetadata(message.jid);
+      const gName = await groupMetadata(message.jid);
       const captionn = `_Join ${gName.subject}_`;
 
       const groupInvite = generateWAMessageFromContent(

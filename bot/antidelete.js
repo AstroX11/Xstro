@@ -25,7 +25,7 @@ export async function AntiDelete(msg) {
       header: '*ᴍᴇssᴀɢᴇ ᴡᴀs ᴅᴇʟᴇᴛᴇᴅ*\n',
       sender: `*sᴇɴᴅᴇʀ:* @${sender.split('@')[0]}`,
       deleter: `*ᴅᴇʟᴇᴛᴇᴅ ʙʏ:* @${deleted.split('@')[0]}`,
-      timestamp: `ᴀᴛ: ${time}`,
+      timestamp: `*ᴀᴛ*: ${time}`,
       content: `*ʀᴇᴄᴏᴠᴇʀᴇᴅ ᴄᴏɴᴛᴇɴᴛ:*\n${content}`,
     };
 

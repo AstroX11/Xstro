@@ -9,12 +9,12 @@ bot(
     desc: 'Create and Share Advertisement Messages to all Your Groups',
     type: 'group',
   },
-  async (message, match) => {
-    const adMsg = match || message.reply_message?.text;
+  async (message, match, { reply_message, groupFetchAllParticipating }) => {
+    const adMsg = match || reply_message.text;
     if (!adMsg) {
       return message.send('_I need a Message to Advertise_');
     }
-    const groups = await message.client.groupFetchAllParticipating();
+    const groups = await groupFetchAllParticipating();
     const groupIds = Object.values(groups).map((group) => group.id);
 
     await message.send(`\`\`\`Advertising to ${groupIds.length} groups.\`\`\``);

@@ -28,20 +28,20 @@ bot(
     on: 'group-chat',
     dontAddCommandList: true,
   },
-  async (message) => {
+  async (message, { groupParticipantsUpdate }) => {
     if (!message.isGroup) return;
     if (!(await getAntibot(message.jid))) return;
     if (message.isAdmin) return;
     if (!message.isBotAdmin) return;
     if (message.sender === message.user) return;
-    if (await isSudo(message.sender, message.user)) return;
+    if (isSudo(message.sender)) return;
 
     if (message.bot) {
       return await Promise.all([
         message.send(`_@${message.sender.split('@')[0]} has been kicked for using Bot_`, {
           mentions: [message.sender],
         }),
-        message.client.groupParticipantsUpdate(message.jid, [message.sender], 'remove'),
+        groupParticipantsUpdate(message.jid, [message.sender], 'remove'),
       ]);
     }
   }

@@ -30,7 +30,7 @@ bot(
     if (!jid) return;
     if (isSudo(jid)) return message.send('_Already A Sudo User_');
     addSudo(jid);
-    return message.send('```@' + jid + ' is now a Sudo```', { mentions: [jid] });
+    return message.send('```@' + jid.split('@')[0] + ' is now a Sudo```', { mentions: [jid] });
   }
 );
 
