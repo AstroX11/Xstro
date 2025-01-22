@@ -1,15 +1,7 @@
-import { getSettings } from '#sql';
-import { isJidGroup } from 'baileys';
+import { isViewOnceEnabled } from '#sql';
 
 export async function AntiViewOnce(msg) {
-  if (!msg.viewonce) return;
-
-  const settings = await getSettings();
-  if (!settings.isEnabled) return;
-
-  const isGroup = isJidGroup(msg.from);
-  if (settings.type === 'gc' && !isGroup) return;
-  if (settings.type === 'dm' && isGroup) return;
+  if (!msg.viewonce || !isViewOnceEnabled()) return;
 
   const modifiedMessage = JSON.parse(JSON.stringify(msg.message));
   const messageType = Object.keys(modifiedMessage)[0];
