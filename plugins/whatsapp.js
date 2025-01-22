@@ -118,8 +118,8 @@ bot(
     type: 'whatsapp',
     desc: 'unarchive whatsapp chat',
   },
-  async (message) => {
-    await message.archiveChat(false);
+  async (message, _, { archiveChat }) => {
+    await archiveChat(false);
     await message.send('_Unarchived_');
   }
 );
@@ -131,8 +131,8 @@ bot(
     type: 'whatsapp',
     desc: 'Deletes A chat',
   },
-  async (message) => {
-    await message.client.chatModify(
+  async (message, _, { chatModify }) => {
+    await chatModify(
       {
         delete: true,
         lastMessages: [
@@ -177,8 +177,8 @@ bot(
     type: 'whatsapp',
     desc: 'Fetches BlockList',
   },
-  async (message) => {
-    const blocklist = await message.client.fetchBlocklist();
+  async (message, _, { fetchBlocklist }) => {
+    const blocklist = await fetchBlocklist();
     if (blocklist.length > 0) {
       const mentions = blocklist.map((number) => `${number}`);
       const formattedList = blocklist.map((number) => `• @${number.split('@')[0]}`).join('\n');
@@ -198,8 +198,8 @@ bot(
     type: 'whatsapp',
     desc: 'delete whatsapp chat',
   },
-  async (message) => {
-    await message.clearChat();
+  async (message, _, { clearChat }) => {
+    await clearChat();
     await delay(2000);
     await message.send('_Cleared_');
   }
@@ -225,8 +225,8 @@ bot(
     type: 'whatsapp',
     desc: 'pin a chat',
   },
-  async (message) => {
-    await message.client.chatModify({ pin: true }, message.jid);
+  async (message, _, { chatModify }) => {
+    await chatModify({ pin: true }, message.jid);
     return message.send('_Pined_');
   }
 );
@@ -238,8 +238,8 @@ bot(
     type: 'whatsapp',
     desc: 'unpin a msg',
   },
-  async (message) => {
-    await message.client.chatModify({ pin: false }, message.jid);
+  async (message, _, { chatModify }) => {
+    await chatModify({ pin: false }, message.jid);
     return message.send('_Unpined_');
   }
 );
@@ -343,9 +343,9 @@ bot(
     type: 'whatsapp',
     desc: 'Change your whatsapp bio',
   },
-  async (message, match, { prefix }) => {
+  async (message, match, { prefix, updateProfileStatus }) => {
     if (!match) return message.send(`_Usage:_\n_${prefix}bio Hello World_`);
-    await message.client.updateProfileStatus(match);
+    await updateProfileStatus(match);
     return await message.send('```WhatsApp bio Updated to "' + match + '"```');
   }
 );
@@ -357,10 +357,10 @@ bot(
     type: 'whatsapp',
     desc: 'React to A Message',
   },
-  async (message, match) => {
+  async (message, match, { sendMessage }) => {
     if (!message.reply_message) return message.send('_Reply Message_');
     if (!match) return message.send('```react 😊```');
-    return message.client.sendMessage(message.jid, {
+    return await sendMessage(message.jid, {
       react: { text: match, key: message.reply_message.key },
     });
   }
@@ -388,13 +388,12 @@ bot(
     type: 'whatsapp',
     desc: 'Stars or Unstars a Message',
   },
-  async (message) => {
+  async (message, _, { star }) => {
     const replyMessage = message.reply_message;
     if (!replyMessage) return message.send('_Reply to a message to star it_');
     const jid = message.jid;
     const messages = [{ id: replyMessage.id, fromMe: replyMessage.fromMe }];
-    const star = false;
-    await message.client.star(jid, messages, star);
+    await star(jid, messages, false);
   }
 );
 
@@ -405,8 +404,8 @@ bot(
     type: 'whatsapp',
     desc: 'Get Bot Owner',
   },
-  async (message) => {
-    const name = await message.client.getName(message.user);
+  async (message, _, { getName }) => {
+    const name = await getName(message.user);
     const vcard = `
 BEGIN:VCARD
 VERSION:3.0
