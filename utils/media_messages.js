@@ -39,6 +39,9 @@ export function editMessageProptery(message, propertyPath, value) {
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
+    if (key === '__proto__' || key === 'constructor') {
+      throw new Error('Prototype pollution attempt detected');
+    }
     if (!(key in current)) {
       throw new Error(`"${propertyPath}" does not exist in message`);
     }
