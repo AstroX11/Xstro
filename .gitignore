@@ -5,7 +5,6 @@ database.db-wal
 .env
 test.js
 session
-store
 *.tgz
 config.env
 config.json

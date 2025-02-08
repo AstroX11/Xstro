@@ -1,6 +1,6 @@
 {
   "name": "xstro",
-  "version": "1.6.14",
+  "version": "1.6.15",
   "description": "A simple WhatsApp bot built by AstroX11.",
   "main": "index.js",
   "type": "module",
@@ -55,7 +55,7 @@
     "sharp": "^0.33.5",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "xstro-utils": "^1.0.5"
+    "xstro-utils": "^1.0.8"
   },
   "packageManager": "yarn@1.22.22"
 }

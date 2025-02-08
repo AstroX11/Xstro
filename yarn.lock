@@ -1787,10 +1787,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-xstro-utils@^1.0.5:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/xstro-utils/-/xstro-utils-1.0.7.tgz#36bb9c30bdca98ba919330f0fe00bd22417e714c"
-  integrity sha512-Qmv8Pbjv4fAJ6KB2vStsbikC7P4B3MRZRSZgF75xLDFi7iOQ8eZTd5E9CmajyDCeeVsc/5hdiqu0s8RuGmVeWA==
+xstro-utils@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/xstro-utils/-/xstro-utils-1.0.8.tgz#3eadf705a7721edf042fde29d704bca687adfd77"
+  integrity sha512-Vfe/LKyYX7x/8zgvpDLFPQXul7KIKJabd9HLk3vcYzEMicFl5mXhd2P7Uk25zPxJbQ0DoQeFgfp0ms1okMh5PQ==
   dependencies:
     axios "^1.7.9"
     file-type "^16.5.4"
