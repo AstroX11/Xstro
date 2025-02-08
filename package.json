@@ -1,6 +1,6 @@
 {
   "name": "xstro",
-  "version": "1.6.10",
+  "version": "1.6.14",
   "description": "A simple WhatsApp bot built by AstroX11.",
   "main": "index.js",
   "type": "module",
@@ -13,12 +13,12 @@
     "#extension": "./extension/index.js",
     "#libary": "./resources/lib/index.js"
   },
-  "scripts": {
-    "start": "node index",
-    "install": "yarn --cwd resources install",
-    "build": "yarn --cwd resources build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+ "scripts": {
+  "start": "node index",
+  "postinstall": "yarn --cwd resources install",
+  "build": "yarn --cwd resources build",
+  "lint": "eslint .",
+  "lint:fix": "eslint . --fix"
   },
   "files": [
     "lib",

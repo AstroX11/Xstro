@@ -35,14 +35,39 @@ function writeEnvFile() {
 }
 
 function installDependencies() {
-  console.log('Installing dependencies...');
-  const installResult = spawnSync('yarn', ['install'], {
+  console.log('Installing root dependencies...');
+  const rootInstall = spawnSync('yarn', ['install'], {
     cwd: resolve(CONFIG.PROJECT_DIR),
     stdio: 'inherit',
-    shell: true, // Ensure compatibility with Windows
+    shell: true,
   });
-  if (installResult.error || installResult.status !== 0) {
-    handleError('Failed to install dependencies.', installResult.error);
+
+  if (rootInstall.error || rootInstall.status !== 0) {
+    handleError('Failed to install root dependencies.', rootInstall.error);
+    return;
+  }
+
+  console.log('Installing dependencies in resources folder...');
+  const resourcesInstall = spawnSync('yarn', ['install'], {
+    cwd: resolve(CONFIG.PROJECT_DIR, 'resources'),
+    stdio: 'inherit',
+    shell: true,
+  });
+
+  if (resourcesInstall.error || resourcesInstall.status !== 0) {
+    handleError('Failed to install dependencies in resources.', resourcesInstall.error);
+    return;
+  }
+
+  console.log('Building resources...');
+  const buildResult = spawnSync('yarn', ['build'], {
+    cwd: resolve(CONFIG.PROJECT_DIR, 'resources'),
+    stdio: 'inherit',
+    shell: true,
+  });
+
+  if (buildResult.error || buildResult.status !== 0) {
+    handleError('Failed to build resources.', buildResult.error);
   }
 }
 
