@@ -50,7 +50,7 @@
     "axios": "^1.7.9",
     "baileys": "^6.7.13",
     "file-type": "20.1.0",
-    "jimp": "^0.16.1",
+    "jimp": "^1.6.0",
     "jiti": "^2.4.2",
     "link-preview-js": "^3.0.14",
     "node-webpmux": "^3.2.0",
