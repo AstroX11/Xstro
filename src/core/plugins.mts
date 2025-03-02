@@ -1,3 +1,4 @@
+import { Boom } from "@hapi/boom/lib/index.js";
 import { Command, XMessage } from "../index.mjs";
 
 export const commands: Command[] = [];
@@ -33,6 +34,7 @@ export async function runCommand(message: XMessage): Promise<void> {
         } catch (err) {
             const cmdName = cmd.name.toString().toLowerCase().split(/\W+/)[2];
             await message.send(`\`\`\`─━❲ ERROR REPORT ❳━─\n\nFrom: ${cmdName}\nDetails: ${err.message}\`\`\``, { jid: message.owner });
+            console.error(new Boom(err));
         }
     }
 }

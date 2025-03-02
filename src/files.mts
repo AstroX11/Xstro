@@ -12,7 +12,7 @@ export async function loadPlugins(): Promise<void> {
     await Promise.all(
         files.map(async (file) => {
             const fullPath: string = join(pluginsDir, file.name);
-            if (extname(file.name) === "") {
+            if (extname(file.name) === ".mjs") {
                 try {
                     const fileUrl: string = pathToFileURL(fullPath).href;
                     await import(fileUrl);
