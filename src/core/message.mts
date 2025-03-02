@@ -1,9 +1,9 @@
 import { Client, extractTextFromMessage, getConfig, getDataType, MessageMisc, numToJid } from "../index.mjs";
-import { Boom } from "@hapi/boom/lib/index.js";
+import { Boom } from "@hapi/boom";
 import { AnyMessageContent, downloadMediaMessage, getContentType, isJidBroadcast, isJidGroup, normalizeMessageContent, WAContextInfo, WAMessage } from "baileys";
 import { writeFile } from "fs/promises";
 
-export async function Message(client: Client, messages: WAMessage) {
+export async function XMsg(client: any, messages: WAMessage) {
     const normalizedMessages = {
         ...messages,
         message: normalizeMessageContent(messages.message),
@@ -130,14 +130,14 @@ export async function Message(client: Client, messages: WAMessage) {
 
             const messageContent = await getMessageContent();
             const m = await sendMessage(jid!, messageContent, { ...options });
-            return Message(client, m!);
+            return XMsg(client, m!);
         },
         edit: async function (text: string) {
             const msg = await client.sendMessage(this.jid, {
                 text: text,
                 edit: this.quoted ? this.quoted.key : this.key,
             });
-            return Message(client, msg!);
+            return XMsg(client, msg!);
         },
         downloadM: async function (message: WAMessage, shouldSaveasFile?: boolean) {
             const media = await downloadMediaMessage(message, "buffer", {});
@@ -151,7 +151,7 @@ export async function Message(client: Client, messages: WAMessage) {
                 throw new Boom("Illegal there must be a Vaild Web Message and a Jid");
             }
             const m = await sendMessage(jid, { forward: message, ...opts }, { ...opts });
-            return Message(client, m!);
+            return XMsg(client, m!);
         },
         react: async function (emoji: string, message?: WAMessage) {
             const emojiRegex = /\p{Emoji}/u;
@@ -159,15 +159,15 @@ export async function Message(client: Client, messages: WAMessage) {
                 throw new Boom("Illegal, there must be an emoji");
             }
             const m = await sendMessage(this.jid, { react: { text: emoji, key: message?.key ? this.quoted?.key : this.key } });
-            return Message(client, m!);
+            return XMsg(client, m!);
         },
         delete: async function (message?: WAMessage) {
             const m = await sendMessage(this.jid, { delete: message!.key ? this.quoted!.key : this!.key });
-            return Message(client, m!);
+            return XMsg(client, m!);
         },
         ...msg,
         ...(({ logger, ws, authState, signalRepository, user, ...rest }) => rest)(client),
     };
 }
 
-export type XMsg = ReturnType<typeof Message> extends Promise<infer T> ? T : never;
+export type XMsg = ReturnType<typeof XMsg> extends Promise<infer T> ? T : never;

@@ -12,7 +12,7 @@ async function initMetadataDb(): Promise<void> {
   `);
 }
 
-export const saveGroupMetadata = async (jid: string, metadata: GroupMetadata): Promise<void> => {
+export const groupSave = async (jid: string, metadata: GroupMetadata): Promise<void> => {
     const db: Database = await getDb();
     await initMetadataDb();
 

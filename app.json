@@ -1,29 +1,24 @@
 {
-  "name": "xstro",
-  "description": "OpenSource WhatsApp Bot",
-  "logo": "https://avatars.githubusercontent.com/u/188756392?v=4",
-  "repository": "https://github.com/AstroX11/Xstro",
-  "stack": "container",
-  "success_url": "/",
-  "env": {
-    "SESSION_ID": {
-      "description": "SESSION HERE",
-      "required": true
-    },
-    "BOT_INFO": {
-      "description": "BOT OWNER AND BOT NAME",
-      "value": "αѕтяσχ11;χѕтяσ м∂",
-      "required": false
-    },
-    "TIME_ZONE": {
-      "description": "TIMEZONE",
-      "value": "Asia/Kolkata",
-      "required": false
-    },
-    "WARN_COUNT": {
-      "description": "WARNINGS BEFORE ACTIONS",
-      "value": "3",
-      "required": false
+    "name": "xstro",
+    "description": "OpenSource WhatsApp Bot",
+    "logo": "https://avatars.githubusercontent.com/u/188756392?v=4",
+    "repository": "https://github.com/AstroX11/Xstro",
+    "stack": "container",
+    "success_url": "/",
+    "env": {
+        "SESSION_ID": {
+            "description": "SESSION HERE",
+            "required": true
+        },
+        "BOT_INFO": {
+            "description": "BOT OWNER AND BOT NAME",
+            "value": "αѕтяσχ11;χѕтяσ м∂",
+            "required": false
+        },
+        "TIME_ZONE": {
+            "description": "TIMEZONE",
+            "value": "Asia/Kolkata",
+            "required": false
+        }
     }
-  }
 }

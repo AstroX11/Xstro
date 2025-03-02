@@ -7,9 +7,8 @@ import * as P from "pino";
 // Local
 import * as CacheStore from "./store.mjs";
 import { useSQLiteAuthState } from "./use-sqlite-authstate.mjs";
-import { Message } from "./message.mjs";
-import { Store, chatUpdate, contactUpdate, Msgreceipt, chatUpsert, contactUpsert, groupUpsert, upsertM } from "../model/store.mjs";
-import { groupMetadata, saveGroupMetadata as groupSave } from "../model/metadata.mjs";
+import { XMsg } from "./message.mjs";
+import { Store, chatUpdate, contactUpdate, Msgreceipt, chatUpsert, contactUpsert, groupUpsert, upsertM, groupMetadata, groupSave } from "../model/index.mjs";
 import { runCommand } from "./plugins.mjs";
 import { upsertsM } from "../upserts.mjs";
 
@@ -20,8 +19,8 @@ export const logger = P.pino({
     level: process.env.DEBUG ? "info" : "silent",
 });
 
-export const client = async (database: string = "database.db"): Promise<WASocket> => {
-    const { state, saveCreds } = await useSQLiteAuthState(database);
+export const client = async (database?: string): Promise<WASocket> => {
+    const { state, saveCreds } = await useSQLiteAuthState(database ? database : "database.db");
     const cache = new CacheStore.default();
     await Store();
 
@@ -58,7 +57,7 @@ export const client = async (database: string = "database.db"): Promise<WASocket
                     if (message?.messageStubParameters && message?.messageStubParameters!?.[0] === "Message absent from node") {
                         await conn.sendMessageAck(JSON.parse(JSON.stringify(message?.messageStubParameters!?.[1], BufferJSON.reviver)));
                     }
-                    const msg = await Message(conn, message!);
+                    const msg = await XMsg(conn, message!);
                     Promise.all([runCommand(msg), upsertsM(msg)]);
                 }
             }
