@@ -13,8 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "paths": {
-      "*": ["./node_modules/*", "./src/*"],
-      "#default": ["./src/index.mjs"]
+      "*": ["./node_modules/*", "./src/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types.mts"],
     "baseUrl": ".", // Required for "paths" to work

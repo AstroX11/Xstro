@@ -1,4 +1,4 @@
-import { XMsg, Module, voxnews, wabetanews } from "#core";
+import { XMsg, Module, voxnews, wabetanews } from "../index.mjs";
 
 Module({
     name: "news",

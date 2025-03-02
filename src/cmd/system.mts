@@ -1,4 +1,4 @@
-import { Module, XMsg, runtime } from "#core";
+import { Module, XMsg, runtime } from "../index.mjs";
 import pm2 from "pm2";
 
 Module({

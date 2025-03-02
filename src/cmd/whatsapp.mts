@@ -1,4 +1,4 @@
-import { isMediaMessage, XMsg, Module } from "#core";
+import { isMediaMessage, XMsg, Module } from "../index.mjs";
 
 Module({
     name: "bio",

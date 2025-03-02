@@ -1,4 +1,4 @@
-import { XMsg, Module } from "#core";
+import { XMsg, Module } from "../index.mjs";
 
 Module({
     name: "pin",

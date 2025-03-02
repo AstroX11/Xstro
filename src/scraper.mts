@@ -1,7 +1,6 @@
-import { Boom } from "@hapi/boom";
 import * as cheerio from "cheerio";
-import { fetchJson } from "./functions.mjs";
-import { Article } from "./types.mjs";
+import { Boom } from "@hapi/boom";
+import { fetchJson } from "./constants.mjs";
 
 /** Under the permission of
  * https://www.vox.com/robots.txt
@@ -39,7 +38,7 @@ export const wabetanews = async (): Promise<string> => {
     try {
         const html = await fetchJson("https://wabetainfo.com/");
         const $ = cheerio.load(html);
-        const articles: Article[] = [];
+        const articles: { title: string; description: string; link: string }[] = [];
 
         $("h2.entry-title.mb-half-gutter.last\\:mb-0").each((i, element) => {
             const $element = $(element);

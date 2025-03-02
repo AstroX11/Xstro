@@ -1,23 +1,7 @@
 import { Database } from "sqlite";
 import { getDb } from "./database.mjs";
-import {
-    Chat,
-    ChatUpdate,
-    PresenceData,
-    Contact,
-    WAMessageKey,
-    WAMessage,
-    MessageUpsertType,
-    WACallEvent,
-    ParticipantAction,
-    RequestJoinMethod,
-    RequestJoinAction,
-    GroupMetadata,
-    MessageUserReceiptUpdate,
-    WAProto,
-    GroupParticipant,
-} from "baileys";
-import { groupMetadata, ParticipantActivity } from "#core";
+import { Chat, ChatUpdate, PresenceData, Contact, WAMessage, MessageUpsertType, GroupMetadata, MessageUserReceiptUpdate, GroupParticipant } from "baileys";
+import { groupMetadata } from "./metadata.mjs";
 
 export async function Store(): Promise<void> {
     const db: Database = await getDb();
@@ -63,15 +47,6 @@ export async function Store(): Promise<void> {
         )
     `);
     await db.exec(`
-        CREATE TABLE IF NOT EXISTS message_reactions (
-            remoteJid TEXT,
-            id TEXT,
-            fromMe INTEGER,
-            reaction TEXT,
-            PRIMARY KEY (remoteJid, id, fromMe)
-        )
-    `);
-    await db.exec(`
         CREATE TABLE IF NOT EXISTS message_receipts (
             remoteJid TEXT,
             id TEXT,
@@ -81,44 +56,9 @@ export async function Store(): Promise<void> {
             PRIMARY KEY (remoteJid, id, fromMe, userJid)
         )
     `);
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS groups (
-            id TEXT PRIMARY KEY,
-            data JSON
-        )
-    `);
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS group_participants (
-            groupId TEXT,
-            participant TEXT,
-            action TEXT,
-            author TEXT,
-            timestamp INTEGER DEFAULT (strftime('%s', 'now')),
-            PRIMARY KEY (groupId, participant, timestamp)
-        )
-    `);
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS group_join_requests (
-            groupId TEXT,
-            participant TEXT,
-            author TEXT,
-            action TEXT,
-            method TEXT,
-            timestamp INTEGER DEFAULT (strftime('%s', 'now')),
-            PRIMARY KEY (groupId, participant, timestamp)
-        )
-    `);
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS calls (
-            id TEXT PRIMARY KEY,
-            chatId TEXT,
-            fromJid TEXT,
-            data JSON
-        )
-    `);
 }
 
-export async function upsertChat(chat: Chat): Promise<void> {
+export async function chatUpsert(chat: Chat): Promise<void> {
     const db: Database = await getDb();
     await db.run(
         `
@@ -129,7 +69,7 @@ export async function upsertChat(chat: Chat): Promise<void> {
     );
 }
 
-export async function updateChat(chatUpdate: ChatUpdate): Promise<void> {
+export async function chatUpdate(chatUpdate: ChatUpdate): Promise<void> {
     const db: Database = await getDb();
     await db.run(
         `
@@ -159,7 +99,7 @@ export async function updatePresence(presenceUpdate: { id: string; presences: { 
     }
 }
 
-export async function updateContacts(contactUpdates: Partial<Contact>[]): Promise<void> {
+export async function contactUpdate(contactUpdates: Partial<Contact>[]): Promise<void> {
     const db: Database = await getDb();
     const stmt = await db.prepare(`
         UPDATE contacts 
@@ -182,7 +122,7 @@ export async function updateContacts(contactUpdates: Partial<Contact>[]): Promis
     }
 }
 
-export async function upsertContacts(contacts: Contact[]): Promise<void> {
+export async function contactUpsert(contacts: Contact[]): Promise<void> {
     const db: Database = await getDb();
     const stmt = await db.prepare(`
         INSERT OR REPLACE INTO contacts (id, lid, name, notify, verifiedName, imgUrl, status)
@@ -198,7 +138,7 @@ export async function upsertContacts(contacts: Contact[]): Promise<void> {
     }
 }
 
-export async function upsertMessages(upsert: { messages: WAMessage[]; type: MessageUpsertType; requestId?: string }): Promise<void> {
+export async function upsertM(upsert: { messages: WAMessage[]; type: MessageUpsertType; requestId?: string }): Promise<void> {
     const db: Database = await getDb();
     const stmt = await db.prepare(`
         INSERT OR REPLACE INTO messages (
@@ -235,23 +175,7 @@ export async function upsertMessages(upsert: { messages: WAMessage[]; type: Mess
     }
 }
 
-export async function saveMessageReactions(reactions: { key: WAMessageKey; reaction: WAProto.IReaction }[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
-        INSERT OR REPLACE INTO message_reactions (remoteJid, id, fromMe, reaction)
-        VALUES (?, ?, ?, ?)
-    `);
-
-    try {
-        for (const { key, reaction } of reactions) {
-            await stmt.run([key.remoteJid, key.id, key.fromMe ? 1 : 0, reaction.text || null]);
-        }
-    } finally {
-        await stmt.finalize();
-    }
-}
-
-export async function updateMessageReceipts(receipts: MessageUserReceiptUpdate[]): Promise<void> {
+export async function Msgreceipt(receipts: MessageUserReceiptUpdate[]): Promise<void> {
     const db: Database = await getDb();
     const stmt = await db.prepare(`
         INSERT OR REPLACE INTO message_receipts (remoteJid, id, fromMe, userJid, data)
@@ -267,7 +191,7 @@ export async function updateMessageReceipts(receipts: MessageUserReceiptUpdate[]
     }
 }
 
-export async function upsertGroups(groups: GroupMetadata[]): Promise<void> {
+export async function groupUpsert(groups: GroupMetadata[]): Promise<void> {
     const db: Database = await getDb();
     const stmt = await db.prepare(`
         INSERT OR REPLACE INTO groups (id, data)
@@ -277,66 +201,6 @@ export async function upsertGroups(groups: GroupMetadata[]): Promise<void> {
     try {
         for (const group of groups) {
             await stmt.run([group.id, JSON.stringify(group)]);
-        }
-    } finally {
-        await stmt.finalize();
-    }
-}
-
-export async function updateGroups(groupUpdates: Partial<GroupMetadata>[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
-        UPDATE groups 
-        SET data = json_patch(data, ?)
-        WHERE id = ?
-    `);
-
-    try {
-        for (const update of groupUpdates) {
-            await stmt.run([JSON.stringify(update), update.id]);
-        }
-    } finally {
-        await stmt.finalize();
-    }
-}
-
-export async function updateGroupParticipants(update: { id: string; author: string; participants: string[]; action: ParticipantAction }): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
-        INSERT INTO group_participants (groupId, participant, action, author)
-        VALUES (?, ?, ?, ?)
-    `);
-
-    try {
-        for (const participant of update.participants) {
-            await stmt.run([update.id, participant, update.action, update.author]);
-        }
-    } finally {
-        await stmt.finalize();
-    }
-}
-
-export async function saveGroupJoinRequest(request: { id: string; author: string; participant: string; action: RequestJoinAction; method: RequestJoinMethod }): Promise<void> {
-    const db: Database = await getDb();
-    await db.run(
-        `
-        INSERT INTO group_join_requests (groupId, participant, author, action, method)
-        VALUES (?, ?, ?, ?, ?)
-    `,
-        [request.id, request.participant, request.author, request.action, request.method || null]
-    );
-}
-
-export async function saveCalls(calls: WACallEvent[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
-        INSERT OR REPLACE INTO calls (id, chatId, fromJid, data)
-        VALUES (?, ?, ?, ?)
-    `);
-
-    try {
-        for (const call of calls) {
-            await stmt.run([call.id, call.chatId, call.from, JSON.stringify(call)]);
         }
     } finally {
         await stmt.finalize();
@@ -356,7 +220,7 @@ export async function loadMessage(id: string): Promise<any> {
     return message ? JSON.parse(message.data) : null;
 }
 
-export async function fetchParticipantsActivity(jid: string, endDate?: number): Promise<ParticipantActivity[]> {
+export async function fetchParticipantsActivity(jid: string, endDate?: number): Promise<{ pushName: string | null; messageCount: number; participant: string }[]> {
     const db: Database = await getDb();
     const groupData: GroupMetadata | undefined = await groupMetadata(jid);
 
@@ -397,7 +261,7 @@ export async function fetchParticipantsActivity(jid: string, endDate?: number): 
         }
     });
 
-    const results: ParticipantActivity[] = Array.from(activityMap.entries()).map(([participant, messageCount]) => ({
+    const results: { pushName: string | null; messageCount: number; participant: string }[] = Array.from(activityMap.entries()).map(([participant, messageCount]) => ({
         pushName: pushNameMap.get(participant) || null,
         messageCount,
         participant,

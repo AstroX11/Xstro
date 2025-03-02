@@ -1,31 +1,17 @@
-import { makeWASocket, makeCacheableSignalKeyStore, DisconnectReason, Browsers, BufferJSON, WASocket } from "baileys";
+// Main
 import { Boom } from "@hapi/boom";
-import * as P from "pino";
+import { makeWASocket, makeCacheableSignalKeyStore, DisconnectReason, Browsers, BufferJSON, WASocket } from "baileys";
 import { EventEmitter } from "events";
+import * as P from "pino";
+
+// Local
 import * as CacheStore from "./store.mjs";
-import {
-    Xprocess,
-    useSQLiteAuthState,
-    groupMetadata,
-    saveGroupMetadata,
-    Message,
-    runCommand,
-    Store,
-    upsertChat,
-    upsertMessages,
-    updateChat,
-    saveCalls,
-    saveGroupJoinRequest,
-    updateGroupParticipants,
-    updateGroups,
-    upsertGroups,
-    updateMessageReceipts,
-    saveMessageReactions,
-    updateContacts,
-    updatePresence,
-    upsertContacts,
-    upsertsM,
-} from "#core";
+import { useSQLiteAuthState } from "./use-sqlite-authstate.mjs";
+import { Message } from "./message.mjs";
+import { Store, chatUpdate, contactUpdate, Msgreceipt, chatUpsert, contactUpsert, groupUpsert, upsertM } from "../model/store.mjs";
+import { groupMetadata, saveGroupMetadata as groupSave } from "../model/metadata.mjs";
+import { runCommand } from "./plugins.mjs";
+import { upsertsM } from "../upserts.mjs";
 
 EventEmitter.defaultMaxListeners = 10000;
 process.setMaxListeners(10000);
@@ -55,7 +41,7 @@ export const client = async (database: string = "database.db"): Promise<WASocket
         if (events["connection.update"]) {
             const { connection, lastDisconnect } = events["connection.update"];
             if (connection === "connecting") console.log("connecting...");
-            else if (connection === "close") (lastDisconnect?.error as Boom)?.output?.statusCode === DisconnectReason.loggedOut ? Xprocess("stop") : client(database);
+            else if (connection === "close") (lastDisconnect?.error as Boom)?.output?.statusCode === DisconnectReason.loggedOut ? process.exit(1) : client(database);
             else if (connection === "open") {
                 await conn.sendMessage(conn?.user?.id!, { text: "Bot is online now!" });
                 console.log(`Connected!`);
@@ -66,7 +52,7 @@ export const client = async (database: string = "database.db"): Promise<WASocket
 
         if (events["messages.upsert"]) {
             const { messages, type, requestId } = events["messages.upsert"];
-            await upsertMessages({ messages, type, requestId });
+            await upsertM({ messages, type, requestId });
             if (type === "notify") {
                 for (const message of messages) {
                     if (message?.messageStubParameters && message?.messageStubParameters!?.[0] === "Message absent from node") {
@@ -81,7 +67,7 @@ export const client = async (database: string = "database.db"): Promise<WASocket
             const chatUpserts = events["chats.upsert"];
             if (chatUpserts) {
                 for (const chat of chatUpserts) {
-                    await upsertChat(chat);
+                    await chatUpsert(chat);
                 }
             }
         }
@@ -89,68 +75,32 @@ export const client = async (database: string = "database.db"): Promise<WASocket
             const chatUpserts = events["chats.update"];
             if (chatUpserts) {
                 for (const updates of chatUpserts) {
-                    await updateChat(updates);
+                    await chatUpdate(updates);
                 }
-            }
-        }
-        if (events["call"]) {
-            const calls = events["call"];
-            if (calls) {
-                await saveCalls(calls);
-            }
-        }
-        if (events["group.join-request"]) {
-            const Requests = events["group.join-request"];
-            if (Requests) {
-                await saveGroupJoinRequest(Requests);
-            }
-        }
-        if (events["group-participants.update"]) {
-            const participantsUpdate = events["group-participants.update"];
-            if (participantsUpdate) {
-                await updateGroupParticipants(participantsUpdate);
-            }
-        }
-        if (events["groups.update"]) {
-            const groupUpdates = events["groups.update"];
-            if (groupUpdates) {
-                await updateGroups(groupUpdates);
             }
         }
         if (events["groups.upsert"]) {
             const groupUpdates = events["groups.upsert"];
             if (groupUpdates) {
-                await upsertGroups(groupUpdates);
+                await groupUpsert(groupUpdates);
             }
         }
         if (events["message-receipt.update"]) {
             const receipts = events["message-receipt.update"];
             if (receipts) {
-                await updateMessageReceipts(receipts);
-            }
-        }
-        if (events["messages.reaction"]) {
-            const reactions = events["messages.reaction"];
-            if (reactions) {
-                await saveMessageReactions(reactions);
+                await Msgreceipt(receipts);
             }
         }
         if (events["contacts.update"]) {
             const contactUpdates = events["contacts.update"];
             if (contactUpdates) {
-                await updateContacts(contactUpdates);
+                await contactUpdate(contactUpdates);
             }
         }
         if (events["contacts.upsert"]) {
-            const contactUpsert = events["contacts.upsert"];
-            if (contactUpsert) {
-                await upsertContacts(contactUpsert);
-            }
-        }
-        if (events["presence.update"]) {
-            const presence = events["presence.update"];
-            if (presence) {
-                await updatePresence(presence);
+            const contact = events["contacts.upsert"];
+            if (contact) {
+                await contactUpsert(contact);
             }
         }
     });
@@ -160,7 +110,7 @@ export const client = async (database: string = "database.db"): Promise<WASocket
             if (!conn.authState?.creds?.registered) return;
             const groups = await conn.groupFetchAllParticipating();
             for (const [id, metadata] of Object.entries(groups)) {
-                await saveGroupMetadata(id, metadata);
+                await groupSave(id, metadata);
             }
         } catch (error) {
             throw new Boom(error.message as Error);

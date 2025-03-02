@@ -1,11 +1,28 @@
-import { getAntilink, getAntiword, XMsg } from "#core";
+import util from "util";
+import { isUrl } from "constants.mjs";
+import { XMsg } from "./core/message.mjs";
+import { getAntiword } from "model/antiword.mjs";
+import { getAntilink } from "model/antilink.mjs";
 
-function isUrl(text: string): boolean {
-    const urlRegex = /\bhttps?:\/\/[^\s/$.?#].[^\s]*|www\.[^\s/$.?#].[^\s]*\b/gi;
-    return urlRegex.test(text);
+export async function upsertsM(message: XMsg) {
+    Promise.all([evaluator(message), Antilink(message), Antiword(message)]);
 }
 
-export async function Antilink(message: XMsg) {
+async function evaluator(message: XMsg) {
+    if (!message.text) return;
+
+    if (message.text.startsWith("$ ")) {
+        try {
+            const code = message.text.slice(2);
+            const result = await eval(`(async () => { ${code} })()`);
+            await message.send(util.inspect(result, { depth: 1 }));
+        } catch (error) {
+            await message.send("Error: " + (error instanceof Error ? error.message : String(error)));
+        }
+    }
+}
+
+async function Antilink(message: XMsg) {
     if (!message.isGroup || !message.text || message.sudo || (await message.isAdmin())) return;
     const settings = await getAntilink(message.jid);
     if (!settings?.status) return;
@@ -25,7 +42,7 @@ export async function Antilink(message: XMsg) {
     }
 }
 
-export async function Antiword(message: XMsg) {
+async function Antiword(message: XMsg) {
     if (!message.isGroup || !message.text || message.sudo || (await message.isAdmin())) return;
     const settings = await getAntiword(message.jid);
     if (!settings?.status) return;

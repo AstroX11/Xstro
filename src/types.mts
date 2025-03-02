@@ -1,28 +1,10 @@
-import { WAProto, WASocket, GroupMetadata, WAMessage } from "baileys";
-import { XMsg } from "#core";
+import { WAProto, WASocket, WAMessage } from "baileys";
+import { XMsg } from "./core/message.mjs";
 
-// WhatsApp Core Types
 export type Client = WASocket;
-export type GroupData = GroupMetadata;
 
-// Message Content Types
-export type sendTypes = "text" | "audio" | "image" | "video" | "sticker" | "document";
-export type MediaMessageType = "imageMessage" | "videoMessage" | "audioMessage" | "documentMessage";
-export type ContentType = Buffer | string;
-export type Category = "misc" | "system" | "settings" | "tools" | "whatsapp" | "group" | "news" | "chats" | "download";
+export type cmdCategories = "misc" | "system" | "settings" | "tools" | "whatsapp" | "group" | "news" | "chats" | "download";
 
-// Data Structures
-export interface DataType {
-    contentType: sendTypes;
-    mimeType: string;
-}
-
-export interface MediaTypeInfo {
-    mimeType: string;
-    contentType: sendTypes;
-}
-
-// Command System
 export interface Command {
     /** Name of function */
     name: RegExp | string;
@@ -37,18 +19,9 @@ export interface Command {
     /** Description of what the command does */
     desc: string | undefined;
     /** Category of where the command should below */
-    type: Category;
+    type: cmdCategories;
     /** Should the command appear on the menu list? */
     dontAddCommandList?: boolean;
-}
-
-export interface SystemConfig {
-    /** Path to sqlite database, you can add your current or create a new one */
-    DATABASE_URL?: string;
-    /** Bot info such as owner, and the bot name */
-    BOT_INFO?: string;
-    /** What https port should the bot run on? */
-    PORT?: number | undefined;
 }
 
 export type Config = {
@@ -81,32 +54,31 @@ export type Config = {
 };
 
 // Message Sending
-export interface sendMessageOptionals {
+export interface MessageMisc {
+    /** Who to send the message to */
     jid: string;
+    /** ContextInfo of the message */
     contextInfo?: WAProto.IContextInfo;
+    /** mention users */
     mentions?: string[];
-    type?: sendTypes;
+    /** type of message, text,audio, video, document etc, leave empty for automatic dectection */
+    type?: "text" | "audio" | "image" | "video" | "sticker" | "document";
+    /** custom mimetype, xstro auto generates one */
     mimetype?: string;
+    /** should the message disapper from chat */
     disappearingMessagesInChat?: boolean | number;
+    /** Name of the file if sending as document */
     fileName?: string;
+    /** should send file as push to talk? */
     ptt?: boolean;
+    /** should send file as video note? */
     ptv?: boolean;
+    /** caption for video or audio message */
     caption?: string;
+    /** choose through if you want the message to play as gif */
     gifPlayback?: boolean;
+    /** Wa message */
     quoted?: WAMessage;
+    /** idk */
     ephemeralExpiration?: number | string;
-}
-
-// Group Activity
-export interface ParticipantActivity {
-    pushName: string | null;
-    messageCount: number;
-    participant: string;
-}
-
-// News/Article Structure
-export interface Article {
-    title: string;
-    description: string;
-    link: string;
 }

@@ -1,4 +1,4 @@
-import { XMsg, Module, commands, formatBytes, runtime } from "#core";
+import { XMsg, Module, commands, formatBytes, runtime } from "../index.mjs";
 import { platform, totalmem, freemem } from "os";
 
 Module({

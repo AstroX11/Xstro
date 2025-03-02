@@ -1,4 +1,4 @@
-import { delAntilink, getAntilink, getAntiword, XMsg, Module, setAntilink, setAntiword } from "#core";
+import { delAntilink, getAntilink, getAntiword, XMsg, Module, setAntilink, setAntiword } from "../index.mjs";
 
 Module({
     name: "antilink",

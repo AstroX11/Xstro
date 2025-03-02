@@ -1,15 +1,11 @@
-import { DataType, MediaMessageType, XMsg } from "#core";
-import { Boom } from "@hapi/boom/lib/index.js";
-import { getContentType, jidNormalizedUser, WAMessage, WAMessageContent } from "baileys";
+import { Boom } from "@hapi/boom";
 import { fileTypeFromBuffer } from "file-type";
 import got, { Options as gotOps } from "got";
+import { getContentType, jidNormalizedUser, WAMessage, WAMessageContent } from "baileys";
 
-export function Xprocess(type: "restart" | "stop"): void {
-    if (type === "restart") {
-        process.exit();
-    } else if (type === "stop") {
-        process.send?.("app.kill");
-    }
+export function isUrl(text: string): boolean {
+    const urlRegex = /\bhttps?:\/\/[^\s/$.?#].[^\s]*|www\.[^\s/$.?#].[^\s]*\b/gi;
+    return urlRegex.test(text);
 }
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
@@ -59,15 +55,6 @@ export const extractUrl = (str: string): string | false => {
     return match ? match[0] : false;
 };
 
-export function isUrl(string: string): boolean {
-    try {
-        const url = new URL(string);
-        return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-        return false;
-    }
-}
-
 export const convertTo24Hour = (timeStr: string): string | null => {
     const timeRegex = /^(0?[1-9]|1[0-2]):([0-5][0-9])(am|pm)$/i;
     const match = timeStr.toLowerCase().match(timeRegex);
@@ -100,7 +87,7 @@ export const formatTime = (timestamp: number): string => {
     return `${hours}:${String(minutes).padStart(2, "0")}${ampm}`;
 };
 
-export const getDataType = async (content: Buffer | string): Promise<DataType> => {
+export const getDataType = async (content: Buffer | string): Promise<{ contentType: "text" | "audio" | "image" | "video" | "sticker" | "document"; mimeType: string }> => {
     if (typeof content === "string") content = Buffer.from(content);
     const data = await fileTypeFromBuffer(content);
     if (!data) {
@@ -195,13 +182,13 @@ export const fetchJson = async function (url: string, options?: gotOps): Promise
     }
 };
 
-export const isMediaMessage = function (message: WAMessage): boolean {
-    const mediaMessagesTypes: MediaMessageType[] = ["imageMessage", "videoMessage", "audioMessage", "documentMessage"];
-    const content = getContentType(message!.message!);
-    return typeof content === "string" && mediaMessagesTypes.includes(content as MediaMessageType);
-};
-
 export const postJson = async function (url: string) {};
+
+export const isMediaMessage = (message: WAMessage): boolean => {
+    const mediaMessageTypes = ["imageMessage", "videoMessage", "audioMessage", "documentMessage"] as const;
+    const content = getContentType(message?.message!);
+    return typeof content === "string" && mediaMessageTypes.includes(content as (typeof mediaMessageTypes)[number]);
+};
 
 export async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
     const chunks: Uint8Array[] = [];

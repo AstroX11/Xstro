@@ -1,4 +1,4 @@
-import { Client, ContentType, extractTextFromMessage, getConfig, getDataType, numToJid, sendMessageOptionals } from "#core";
+import { Client, extractTextFromMessage, getConfig, getDataType, MessageMisc, numToJid } from "../index.mjs";
 import { Boom } from "@hapi/boom/lib/index.js";
 import { AnyMessageContent, downloadMediaMessage, getContentType, isJidBroadcast, isJidGroup, normalizeMessageContent, WAContextInfo, WAMessage } from "baileys";
 import { writeFile } from "fs/promises";
@@ -69,7 +69,7 @@ export async function Message(client: Client, messages: WAMessage) {
             const allAdmins = metadata.participants.filter((v) => v.admin !== null).map((v) => v.id);
             return !Array.isArray(allAdmins) ? Array.from(allAdmins) : allAdmins.includes(this.owner);
         },
-        send: async function (content: ContentType, options: Partial<sendMessageOptionals> = {}) {
+        send: async function (content: Buffer | string, options: Partial<MessageMisc> = {}) {
             const jid = options.jid ?? this.jid;
             const type = options.type as "text" | "audio" | "image" | "video" | "sticker" | "document" | undefined;
             const atype = await getDataType(content);

@@ -1,4 +1,4 @@
-import { Command, XMsg } from "#core";
+import { Command, XMsg } from "../index.mjs";
 
 export const commands: Command[] = [];
 
