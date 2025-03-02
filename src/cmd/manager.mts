@@ -1,4 +1,4 @@
-import { delAntilink, getAntilink, getAntiword, XMsg, Module, setAntilink, setAntiword } from "../index.mjs";
+import { delAntilink, getAntilink, getAntiword, XMessage, Module, setAntilink, setAntiword } from "../index.mjs";
 
 Module({
     name: "antilink",
@@ -6,7 +6,7 @@ Module({
     isGroup: true,
     desc: "Manage and Setup Antilink",
     type: "group",
-    function: async (message: XMsg, match?: string) => {
+    function: async (message: XMessage, match?: string) => {
         const prefix = message.prefix;
         if (!match) {
             return message.send(`Usage:\n${prefix}antilink on\n${prefix}antilink off\n${prefix}antilink set kick\n${prefix}antilink set delete`);
@@ -43,7 +43,7 @@ Module({
     isGroup: true,
     desc: "Manage and Setup Antiword",
     type: "group",
-    function: async (message: XMsg, match?: string) => {
+    function: async (message: XMessage, match?: string) => {
         const prefix = message.prefix;
         if (!match) {
             return message.send(`Usage:\n${prefix}antiword on\n${prefix}antiword off\n${prefix}antiword set badword1, badword2, badword3`);

@@ -1,27 +1,18 @@
-import { Database } from "sqlite";
 import { getDb } from "./database.mjs";
-import { Chat, ChatUpdate, PresenceData, Contact, WAMessage, MessageUpsertType, GroupMetadata, MessageUserReceiptUpdate, GroupParticipant } from "baileys";
+import { StatementSync, SupportedValueType } from "node:sqlite";
+import { Chat, ChatUpdate, Contact, WAMessage, MessageUpsertType, GroupMetadata, MessageUserReceiptUpdate, GroupParticipant } from "baileys";
 import { groupMetadata } from "./metadata.mjs";
 
-export async function Store(): Promise<void> {
-    const db: Database = await getDb();
-    await db.exec(`
+export function Store(): void {
+    const db = getDb();
+    db.exec(`
         CREATE TABLE IF NOT EXISTS chats (
             id TEXT PRIMARY KEY,
             lastMessageRecvTimestamp INTEGER,
             data JSON
         )
     `);
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS presences (
-            id TEXT,
-            participant TEXT,
-            lastKnownPresence TEXT,
-            lastSeen INTEGER,
-            PRIMARY KEY (id, participant)
-        )
-    `);
-    await db.exec(`
+    db.exec(`
         CREATE TABLE IF NOT EXISTS contacts (
             id TEXT PRIMARY KEY,
             lid TEXT,
@@ -32,7 +23,7 @@ export async function Store(): Promise<void> {
             status TEXT
         )
     `);
-    await db.exec(`
+    db.exec(`
         CREATE TABLE IF NOT EXISTS messages (
             remoteJid TEXT,
             id TEXT,
@@ -46,7 +37,7 @@ export async function Store(): Promise<void> {
             PRIMARY KEY (remoteJid, id, fromMe)
         )
     `);
-    await db.exec(`
+    db.exec(`
         CREATE TABLE IF NOT EXISTS message_receipts (
             remoteJid TEXT,
             id TEXT,
@@ -58,50 +49,33 @@ export async function Store(): Promise<void> {
     `);
 }
 
-export async function chatUpsert(chat: Chat): Promise<void> {
-    const db: Database = await getDb();
-    await db.run(
-        `
+export function chatUpsert(chat: Chat): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         INSERT OR REPLACE INTO chats (id, lastMessageRecvTimestamp, data)
         VALUES (?, ?, ?)
-    `,
-        [chat.id, chat.lastMessageRecvTimestamp, JSON.stringify(chat)]
-    );
+    `);
+    // chat.id is string, lastMessageRecvTimestamp can be number | undefined, data is string
+    const params: SupportedValueType[] = [chat.id, chat.lastMessageRecvTimestamp ?? null, JSON.stringify(chat)];
+    stmt.run(...params);
 }
 
-export async function chatUpdate(chatUpdate: ChatUpdate): Promise<void> {
-    const db: Database = await getDb();
-    await db.run(
-        `
+export function chatUpdate(chatUpdate: ChatUpdate): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         UPDATE chats 
         SET 
             lastMessageRecvTimestamp = ?,
             data = ?
         WHERE id = ?
-    `,
-        [chatUpdate.lastMessageRecvTimestamp, JSON.stringify(chatUpdate), chatUpdate.id]
-    );
-}
-
-export async function updatePresence(presenceUpdate: { id: string; presences: { [participant: string]: PresenceData } }): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
-        INSERT OR REPLACE INTO presences (id, participant, lastKnownPresence, lastSeen)
-        VALUES (?, ?, ?, ?)
     `);
-
-    try {
-        for (const [participant, presence] of Object.entries(presenceUpdate.presences)) {
-            await stmt.run([presenceUpdate.id, participant, presence.lastKnownPresence, presence.lastSeen]);
-        }
-    } finally {
-        await stmt.finalize();
-    }
+    const params: SupportedValueType[] = [chatUpdate.lastMessageRecvTimestamp ?? null, JSON.stringify(chatUpdate), chatUpdate.id ?? null];
+    stmt.run(...params);
 }
 
-export async function contactUpdate(contactUpdates: Partial<Contact>[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
+export function contactUpdate(contactUpdates: Partial<Contact>[]): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         UPDATE contacts 
         SET 
             lid = COALESCE(?, lid),
@@ -113,34 +87,44 @@ export async function contactUpdate(contactUpdates: Partial<Contact>[]): Promise
         WHERE id = ?
     `);
 
-    try {
-        for (const update of contactUpdates) {
-            await stmt.run([update.lid, update.name, update.notify, update.verifiedName, update.imgUrl, update.status, update.id]);
-        }
-    } finally {
-        await stmt.finalize();
+    for (const update of contactUpdates) {
+        const params: SupportedValueType[] = [
+            update.lid ?? null,
+            update.name ?? null,
+            update.notify ?? null,
+            update.verifiedName ?? null,
+            update.imgUrl ?? null,
+            update.status ?? null,
+            update.id ?? null, // id should always be present, but for safety
+        ];
+        stmt.run(...params);
     }
 }
 
-export async function contactUpsert(contacts: Contact[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
+export function contactUpsert(contacts: Contact[]): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         INSERT OR REPLACE INTO contacts (id, lid, name, notify, verifiedName, imgUrl, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    try {
-        for (const contact of contacts) {
-            await stmt.run([contact.id, contact.lid, contact.name, contact.notify, contact.verifiedName, contact.imgUrl, contact.status]);
-        }
-    } finally {
-        await stmt.finalize();
+    for (const contact of contacts) {
+        const params: SupportedValueType[] = [
+            contact.id,
+            contact.lid ?? null,
+            contact.name ?? null,
+            contact.notify ?? null,
+            contact.verifiedName ?? null,
+            contact.imgUrl ?? null,
+            contact.status ?? null,
+        ];
+        stmt.run(...params);
     }
 }
 
-export async function upsertM(upsert: { messages: WAMessage[]; type: MessageUpsertType; requestId?: string }): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
+export function upsertM(upsert: { messages: WAMessage[]; type: MessageUpsertType; requestId?: string }): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         INSERT OR REPLACE INTO messages (
             remoteJid, 
             id, 
@@ -154,75 +138,63 @@ export async function upsertM(upsert: { messages: WAMessage[]; type: MessageUpse
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    try {
-        for (const message of upsert.messages) {
-            const timestamp = typeof message.messageTimestamp === "number" ? message.messageTimestamp : Date.now();
-
-            await stmt.run([
-                message.key.remoteJid,
-                message.key.id,
-                message.key.fromMe ? 1 : 0,
-                message.participant || undefined,
-                timestamp,
-                message.status || undefined,
-                JSON.stringify(message),
-                upsert.requestId || undefined,
-                upsert.type,
-            ]);
-        }
-    } finally {
-        await stmt.finalize();
+    for (const message of upsert.messages) {
+        const timestamp = typeof message.messageTimestamp === "number" ? message.messageTimestamp : Date.now();
+        const params: SupportedValueType[] = [
+            message.key.remoteJid ?? null,
+            message.key.id ?? null,
+            message.key.fromMe ? 1 : 0,
+            message.participant ?? null,
+            timestamp,
+            message.status ?? null,
+            JSON.stringify(message),
+            upsert.requestId ?? null,
+            upsert.type,
+        ];
+        stmt.run(...params);
     }
 }
 
-export async function Msgreceipt(receipts: MessageUserReceiptUpdate[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
+export function Msgreceipt(receipts: MessageUserReceiptUpdate[]): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         INSERT OR REPLACE INTO message_receipts (remoteJid, id, fromMe, userJid, data)
         VALUES (?, ?, ?, ?, ?)
     `);
 
-    try {
-        for (const { key, receipt } of receipts) {
-            await stmt.run([key.remoteJid, key.id, key.fromMe ? 1 : 0, receipt.userJid, JSON.stringify(receipt)]);
-        }
-    } finally {
-        await stmt.finalize();
+    for (const { key, receipt } of receipts) {
+        const params: SupportedValueType[] = [key.remoteJid ?? null, key.id ?? null, key.fromMe ? 1 : 0, receipt.userJid ?? null, JSON.stringify(receipt)];
+        stmt.run(...params);
     }
 }
 
-export async function groupUpsert(groups: GroupMetadata[]): Promise<void> {
-    const db: Database = await getDb();
-    const stmt = await db.prepare(`
+export function groupUpsert(groups: GroupMetadata[]): void {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         INSERT OR REPLACE INTO groups (id, data)
         VALUES (?, ?)
     `);
 
-    try {
-        for (const group of groups) {
-            await stmt.run([group.id, JSON.stringify(group)]);
-        }
-    } finally {
-        await stmt.finalize();
+    for (const group of groups) {
+        const params: SupportedValueType[] = [group.id, JSON.stringify(group)];
+        stmt.run(...params);
     }
 }
 
-export async function loadMessage(id: string): Promise<any> {
-    const db: Database = await getDb();
-    const message = await db.get(
-        `
+export function loadMessage(id: string): any {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         SELECT data 
         FROM messages 
         WHERE id = ?
-        `,
-        [id]
-    );
+    `);
+    const message = stmt.get(id) as { data: string } | undefined;
     return message ? JSON.parse(message.data) : null;
 }
 
-export async function fetchParticipantsActivity(jid: string, endDate?: number): Promise<{ pushName: string | null; messageCount: number; participant: string }[]> {
-    const db: Database = await getDb();
-    const groupData: GroupMetadata | undefined = await groupMetadata(jid);
+export function fetchParticipantsActivity(jid: string, endDate?: number): { pushName: string | null; messageCount: number; participant: string }[] {
+    const db = getDb();
+    const groupData: GroupMetadata | undefined = groupMetadata(jid);
 
     if (!groupData || !groupData.participants) {
         return [];
@@ -233,19 +205,21 @@ export async function fetchParticipantsActivity(jid: string, endDate?: number): 
         participantsMap.set(participant.id, participant);
     });
 
-    let query: string = `
+    let query = `
         SELECT data
         FROM messages 
         WHERE remoteJid = ?
     `;
-    const params: (string | number)[] = [jid];
+    const params: SupportedValueType[] = [jid];
 
     if (endDate !== undefined) {
         query += " AND messageTimestamp <= ?";
         params.push(endDate);
     }
 
-    const messages = await db.all(query, params);
+    const stmt: StatementSync = db.prepare(query);
+    const messages = stmt.all(...params) as { data: string }[];
+
     const activityMap: Map<string, number> = new Map();
     const pushNameMap: Map<string, string> = new Map();
 
@@ -271,42 +245,38 @@ export async function fetchParticipantsActivity(jid: string, endDate?: number): 
     return results;
 }
 
-export async function getChatSummary(jid: string): Promise<{
+export function getChatSummary(jid: string): {
     totalMessages: number;
     lastMessageTimestamp: number | null;
     participantCount: number;
     mostActiveParticipant: string | null;
-}> {
-    const db: Database = await getDb();
-    const chatStats = await db.get(
-        `
+} {
+    const db = getDb();
+    const stmtStats: StatementSync = db.prepare(`
         SELECT 
             COUNT(*) AS totalMessages,
             MAX(messageTimestamp) AS lastMessageTimestamp
         FROM messages 
         WHERE remoteJid = ?
-        `,
-        [jid]
-    );
-    const participantCount = await db.get(
-        `
+    `);
+    const chatStats = stmtStats.get(jid) as { totalMessages: number; lastMessageTimestamp: number | null } | undefined;
+
+    const stmtParticipants: StatementSync = db.prepare(`
         SELECT COUNT(DISTINCT participant) AS count
         FROM messages 
         WHERE remoteJid = ?
-        `,
-        [jid]
-    );
-    const mostActive = await db.get(
-        `
+    `);
+    const participantCount = stmtParticipants.get(jid) as { count: number } | undefined;
+
+    const stmtMostActive: StatementSync = db.prepare(`
         SELECT participant
         FROM messages 
         WHERE remoteJid = ?
         GROUP BY participant
         ORDER BY COUNT(*) DESC
         LIMIT 1
-        `,
-        [jid]
-    );
+    `);
+    const mostActive = stmtMostActive.get(jid) as { participant: string } | undefined;
 
     return {
         totalMessages: chatStats?.totalMessages || 0,
@@ -316,37 +286,28 @@ export async function getChatSummary(jid: string): Promise<{
     };
 }
 
-export async function getAllMessagesFromChat(jid: string): Promise<any[]> {
-    const db: Database = await getDb();
-    const messages = await db.all(
-        `
+export function getAllMessagesFromChat(jid: string): any[] {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         SELECT data 
         FROM messages 
         WHERE remoteJid = ?
         ORDER BY messageTimestamp ASC
-        `,
-        [jid]
-    );
+    `);
+    const messages = stmt.all(jid) as { data: string }[];
     return messages.map((msg) => JSON.parse(msg.data));
 }
 
-export async function getMessageStatusCount(jid: string): Promise<
-    {
-        status: string;
-        count: number;
-    }[]
-> {
-    const db: Database = await getDb();
-    const results = await db.all(
-        `
+export function getMessageStatusCount(jid: string): { status: string; count: number }[] {
+    const db = getDb();
+    const stmt: StatementSync = db.prepare(`
         SELECT 
             status,
             COUNT(*) AS count
         FROM messages 
         WHERE remoteJid = ?
         GROUP BY status
-        `,
-        [jid]
-    );
+    `);
+    const results = stmt.all(jid) as { status: string; count: number }[];
     return results;
 }

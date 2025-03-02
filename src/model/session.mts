@@ -1,25 +1,28 @@
-import { Database } from "sqlite";
 import { getDb } from "./database.mjs";
+import { StatementSync } from "node:sqlite";
 
-async function initSessionDb(): Promise<void> {
-    const db: Database = await getDb();
-    await db.exec(`
-    CREATE TABLE IF NOT EXISTS session_id (
-      id TEXT PRIMARY KEY
-    );
-  `);
+function initSessionDb(): void {
+    const db = getDb();
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS session_id (
+            id TEXT PRIMARY KEY
+        )
+    `);
 }
 
-export const getSessionId = async (): Promise<string | null> => {
-    const db: Database = await getDb();
-    await initSessionDb();
-    const row = await db.get("SELECT id FROM session_id LIMIT 1");
+export const getSessionId = (): string | null => {
+    const db = getDb();
+    initSessionDb();
+    const stmt: StatementSync = db.prepare("SELECT id FROM session_id LIMIT 1");
+    const row = stmt.get() as { id: string } | undefined;
     return row ? row.id : null;
 };
 
-export const setSessionId = async (id: string): Promise<void> => {
-    const db: Database = await getDb();
-    await initSessionDb();
-    await db.run("DELETE FROM session_id");
-    await db.run("INSERT INTO session_id (id) VALUES (?)", id);
+export const setSessionId = (id: string): void => {
+    const db = getDb();
+    initSessionDb();
+    const stmtDelete: StatementSync = db.prepare("DELETE FROM session_id");
+    stmtDelete.run();
+    const stmtInsert: StatementSync = db.prepare("INSERT INTO session_id (id) VALUES (?)");
+    stmtInsert.run(id);
 };

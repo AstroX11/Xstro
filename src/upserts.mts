@@ -1,13 +1,13 @@
 import util from "util";
 import { isUrl } from "./constants.mjs";
-import { XMsg } from "./core/index.mjs";
+import { XMessage } from "./core/index.mjs";
 import { getAntiword, getAntilink } from "./model/index.mjs";
 
-export async function upsertsM(message: XMsg) {
+export async function upsertsM(message: XMessage) {
     Promise.all([evaluator(message), Antilink(message), Antiword(message)]);
 }
 
-async function evaluator(message: XMsg) {
+async function evaluator(message: XMessage) {
     if (!message.text) return;
 
     if (message.text.startsWith("$ ")) {
@@ -21,7 +21,7 @@ async function evaluator(message: XMsg) {
     }
 }
 
-async function Antilink(message: XMsg) {
+async function Antilink(message: XMessage) {
     if (!message.isGroup || !message.text || message.sudo || (await message.isAdmin())) return;
     const settings = await getAntilink(message.jid);
     if (!settings?.status) return;
@@ -41,7 +41,7 @@ async function Antilink(message: XMsg) {
     }
 }
 
-async function Antiword(message: XMsg) {
+async function Antiword(message: XMessage) {
     if (!message.isGroup || !message.text || message.sudo || (await message.isAdmin())) return;
     const settings = await getAntiword(message.jid);
     if (!settings?.status) return;
@@ -59,7 +59,7 @@ async function Antiword(message: XMsg) {
     }
 }
 
-export async function Chatbot(message: XMsg) {
+export async function Chatbot(message: XMessage) {
     if (!message.text) return;
     if (!message.mentions?.includes(message.owner) && message.quoted?.sender !== message.owner) return;
 }

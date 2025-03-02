@@ -1,4 +1,4 @@
-import { Command, XMsg } from "../index.mjs";
+import { Command, XMessage } from "../index.mjs";
 
 export const commands: Command[] = [];
 
@@ -16,7 +16,7 @@ export function Module(cmd: Partial<Command>): Command {
     return fullCmd;
 }
 
-export async function runCommand(message: XMsg): Promise<void> {
+export async function runCommand(message: XMessage): Promise<void> {
     if (!message.text) return;
 
     for (const cmd of commands) {

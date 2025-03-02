@@ -1,4 +1,4 @@
-import { Module, XMsg, runtime } from "../index.mjs";
+import { Module, XMessage, runtime } from "../index.mjs";
 import pm2 from "pm2";
 
 Module({
@@ -6,7 +6,7 @@ Module({
     fromMe: false,
     desc: "Get Performance",
     type: "system",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         const start = Date.now();
         const msg = await message.send("Pong!");
         const end = Date.now();
@@ -19,7 +19,7 @@ Module({
     fromMe: false,
     desc: "Get System uptime",
     type: "system",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         return await message.send(runtime(process.uptime()));
     },
 });
@@ -29,7 +29,7 @@ Module({
     fromMe: true,
     desc: "Restart the bot",
     type: "system",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.send("Restarting...");
         return process.exit();
     },
@@ -40,7 +40,7 @@ Module({
     fromMe: true,
     desc: "Shutdown Pm2 process",
     type: "system",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.send("Goodbye....");
         return pm2.stop("xstro", async (err) => {
             pm2.disconnect();

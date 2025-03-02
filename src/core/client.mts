@@ -22,7 +22,7 @@ export const logger = P.pino({
 export const client = async (database?: string): Promise<WASocket> => {
     const { state, saveCreds } = await useSQLiteAuthState(database ? database : "database.db");
     const cache = new CacheStore.default();
-    await Store();
+    Store();
 
     const conn = makeWASocket({
         auth: {
@@ -33,7 +33,7 @@ export const client = async (database?: string): Promise<WASocket> => {
         logger,
         browser: Browsers.macOS("Desktop"),
         emitOwnEvents: true,
-        cachedGroupMetadata: async (jid) => await groupMetadata(jid),
+        cachedGroupMetadata: async (jid) => groupMetadata(jid),
     });
 
     conn.ev.process(async (events) => {
@@ -51,13 +51,13 @@ export const client = async (database?: string): Promise<WASocket> => {
 
         if (events["messages.upsert"]) {
             const { messages, type, requestId } = events["messages.upsert"];
-            await upsertM({ messages, type, requestId });
+            upsertM({ messages, type, requestId });
             if (type === "notify") {
                 for (const message of messages) {
                     if (message?.messageStubParameters && message?.messageStubParameters!?.[0] === "Message absent from node") {
                         await conn.sendMessageAck(JSON.parse(JSON.stringify(message?.messageStubParameters!?.[1], BufferJSON.reviver)));
                     }
-                    const msg = await XMsg(conn, message!);
+                    const msg = await XMsg(conn, message);
                     Promise.all([runCommand(msg), upsertsM(msg)]);
                 }
             }
@@ -66,7 +66,7 @@ export const client = async (database?: string): Promise<WASocket> => {
             const chatUpserts = events["chats.upsert"];
             if (chatUpserts) {
                 for (const chat of chatUpserts) {
-                    await chatUpsert(chat);
+                    chatUpsert(chat);
                 }
             }
         }
@@ -74,32 +74,32 @@ export const client = async (database?: string): Promise<WASocket> => {
             const chatUpserts = events["chats.update"];
             if (chatUpserts) {
                 for (const updates of chatUpserts) {
-                    await chatUpdate(updates);
+                    chatUpdate(updates);
                 }
             }
         }
         if (events["groups.upsert"]) {
             const groupUpdates = events["groups.upsert"];
             if (groupUpdates) {
-                await groupUpsert(groupUpdates);
+                groupUpsert(groupUpdates);
             }
         }
         if (events["message-receipt.update"]) {
             const receipts = events["message-receipt.update"];
             if (receipts) {
-                await Msgreceipt(receipts);
+                Msgreceipt(receipts);
             }
         }
         if (events["contacts.update"]) {
             const contactUpdates = events["contacts.update"];
             if (contactUpdates) {
-                await contactUpdate(contactUpdates);
+                contactUpdate(contactUpdates);
             }
         }
         if (events["contacts.upsert"]) {
             const contact = events["contacts.upsert"];
             if (contact) {
-                await contactUpsert(contact);
+                contactUpsert(contact);
             }
         }
     });
@@ -109,7 +109,7 @@ export const client = async (database?: string): Promise<WASocket> => {
             if (!conn.authState?.creds?.registered) return;
             const groups = await conn.groupFetchAllParticipating();
             for (const [id, metadata] of Object.entries(groups)) {
-                await groupSave(id, metadata);
+                groupSave(id, metadata);
             }
         } catch (error) {
             throw new Boom(error.message as Error);

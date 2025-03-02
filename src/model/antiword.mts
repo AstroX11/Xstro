@@ -1,9 +1,9 @@
-import { Database } from "sqlite";
 import { getDb } from "./database.mjs";
+import { StatementSync } from "node:sqlite";
 
-async function Antiword(): Promise<void> {
-    const db: Database = await getDb();
-    await db.exec(`
+function Antiword(): void {
+    const db = getDb();
+    db.exec(`
         CREATE TABLE IF NOT EXISTS antiword (
             id TEXT PRIMARY KEY,
             status INTEGER CHECK (status IN (0, 1)),
@@ -12,30 +12,34 @@ async function Antiword(): Promise<void> {
     `);
 }
 
-export async function setAntiword(id: string, status: number, words: string[]): Promise<{ success: boolean; added: number }> {
-    await Antiword();
-    const db: Database = await getDb();
-    const existing = await db.get("SELECT words FROM antiword WHERE id = ?", id);
+export function setAntiword(id: string, status: number, words: string[]): { success: boolean; added: number } {
+    Antiword();
+    const db = getDb();
+    const stmtGet: StatementSync = db.prepare("SELECT words FROM antiword WHERE id = ?");
+    const existing = stmtGet.get(id) as { words: string } | undefined;
     const existingWords = existing?.words ? JSON.parse(existing.words) : [];
     const uniqueWords = [...new Set([...existingWords, ...words])];
     const added = uniqueWords.length - existingWords.length;
 
-    await db.run("INSERT OR REPLACE INTO antiword (id, status, words) VALUES (?, ?, ?)", id, status, JSON.stringify(uniqueWords));
+    const stmtRun: StatementSync = db.prepare("INSERT OR REPLACE INTO antiword (id, status, words) VALUES (?, ?, ?)");
+    stmtRun.run(id, status, JSON.stringify(uniqueWords));
 
     return { success: true, added };
 }
 
-export async function delAntiword(id: string): Promise<boolean> {
-    await Antiword();
-    const db: Database = await getDb();
-    const result = await db.run("DELETE FROM antiword WHERE id = ?", id);
-    return result.changes! > 0;
+export function delAntiword(id: string): boolean {
+    Antiword();
+    const db = getDb();
+    const stmt: StatementSync = db.prepare("DELETE FROM antiword WHERE id = ?");
+    const result = stmt.run(id);
+    return (result.changes ?? 0) > 0;
 }
 
-export async function getAntiword(id: string): Promise<{ status: boolean; words: string[] } | null> {
-    await Antiword();
-    const db: Database = await getDb();
-    const result = await db.get("SELECT status, words FROM antiword WHERE id = ?", id);
+export function getAntiword(id: string): { status: boolean; words: string[] } | null {
+    Antiword();
+    const db = getDb();
+    const stmt: StatementSync = db.prepare("SELECT status, words FROM antiword WHERE id = ?");
+    const result = stmt.get(id) as { status: number; words: string } | undefined;
     if (!result) return null;
     return { status: Boolean(result.status), words: JSON.parse(result.words) };
 }

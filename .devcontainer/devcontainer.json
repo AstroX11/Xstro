@@ -4,11 +4,6 @@
         "dockerfile": "../Dockerfile",
         "context": ".."
     },
-    "customizations": {
-        "vscode": {
-            "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "github.vscode-pull-request-github"]
-        }
-    },
-    "postCreateCommand": "yarn build",
+    "postCreateCommand": "apt-get update && apt-get install -y curl && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && . ~/.nvm/nvm.sh && nvm install node && apt-get install -y python3 python3-pip python3-dev build-essential && yarn build",
     "postStartCommand": "yarn start"
 }

@@ -1,5 +1,5 @@
 import { WAProto, WASocket, WAMessage } from "baileys";
-import { XMsg } from "./core/index.mjs";
+import { XMessage } from "./core/index.mjs";
 
 export type Client = WASocket;
 
@@ -11,7 +11,7 @@ export interface Command {
     /** Should the command always run when it recieves a messgae */
     on?: string | undefined;
     /** Function of the command, must be async */
-    function?: (message: XMsg, match?: string) => Promise<any>;
+    function?: (message: XMessage, match?: string) => Promise<any>;
     /** Should the command be for only sudo and bot owner */
     fromMe?: boolean;
     /** Should the command only be for Groups */

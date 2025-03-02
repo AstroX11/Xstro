@@ -1,10 +1,10 @@
-import { Database } from "sqlite";
+import { DatabaseSync, StatementSync } from "node:sqlite";
 import { getDb } from "./database.mjs";
 import { GroupMetadata } from "baileys";
 
-async function initMetadataDb(): Promise<void> {
-    const db: Database = await getDb();
-    await db.exec(`
+function initMetadataDb(): void {
+    const db: DatabaseSync = getDb();
+    db.exec(`
     CREATE TABLE IF NOT EXISTS group_metadata (
       jid TEXT PRIMARY KEY,
       metadata JSON
@@ -12,25 +12,26 @@ async function initMetadataDb(): Promise<void> {
   `);
 }
 
-export const groupSave = async (jid: string, metadata: GroupMetadata): Promise<void> => {
-    const db: Database = await getDb();
-    await initMetadataDb();
+export const groupSave = (jid: string, metadata: GroupMetadata): void => {
+    const db: DatabaseSync = getDb();
+    initMetadataDb();
 
     const jsonMetadata = JSON.stringify(metadata);
-    const query = `
+    const stmt: StatementSync = db.prepare(`
     INSERT INTO group_metadata (jid, metadata)
     VALUES (?, ?)
     ON CONFLICT(jid) DO UPDATE SET metadata = excluded.metadata;
-  `;
-    await db.run(query, [jid, jsonMetadata]);
+  `);
+
+    stmt.run(jid, jsonMetadata);
 };
 
-export const groupMetadata = async (jid: string): Promise<GroupMetadata | undefined> => {
-    const db: Database = await getDb();
-    await initMetadataDb();
+export const groupMetadata = (jid: string): GroupMetadata | undefined => {
+    const db: DatabaseSync = getDb();
+    initMetadataDb();
 
-    const query = `SELECT metadata FROM group_metadata WHERE jid = ?;`;
-    const result = await db.get(query, [jid]);
+    const stmt: StatementSync = db.prepare(`SELECT metadata FROM group_metadata WHERE jid = ?;`);
+    const result = stmt.get(jid) as { metadata: string } | undefined;
 
     return result && result.metadata ? JSON.parse(result.metadata) : undefined;
 };

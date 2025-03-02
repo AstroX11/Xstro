@@ -7,8 +7,7 @@
     "scripts": {
         "start": "pm2 start . --attach --name xstro",
         "stop": "pm2 stop xstro",
-        "build:only": "tsc",
-        "build": "yarn run eslint . --fix && tsc && babel release --out-dir release",
+        "build": "yarn run eslint . --fix && tsc",
         "semantic-release": "semantic-release"
     },
     "release": {
@@ -55,15 +54,16 @@
         "@semantic-release/github": "^11.0.1",
         "@semantic-release/release-notes-generator": "^14.0.3",
         "eslint": "^9.18.0",
-        "eslint-config-prettier": "^10.0.1",
+        "eslint-config-prettier": "^10.0.2",
         "eslint-plugin-prettier": "^5.2.3",
-        "prettier": "^3.1.0",
+        "prettier": "^3.5.2",
         "semantic-release": "^24.2.3",
-        "typescript": "^5.7.3"
+        "typescript": "^5.8.2"
     },
     "dependencies": {
         "@hapi/boom": "^10.0.1",
         "baileys": "^6.7.15",
+        "better-sqlite3": "^11.8.1",
         "cheerio": "^1.0.0",
         "file-type": "20.2.0",
         "got": "^14.4.6",
@@ -73,9 +73,7 @@
         "pino": "^9.6.0",
         "pm2": "^5.4.3",
         "qrcode-terminal": "^0.12.0",
-        "sharp": "^0.33.5",
-        "sqlite": "^5.1.1",
-        "sqlite3": "^5.1.7"
+        "sharp": "^0.33.5"
     },
     "packageManager": "yarn@1.22.22"
 }

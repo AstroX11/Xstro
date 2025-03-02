@@ -3,14 +3,14 @@ import { Boom } from "@hapi/boom";
 import { AnyMessageContent, downloadMediaMessage, getContentType, isJidBroadcast, isJidGroup, normalizeMessageContent, WAContextInfo, WAMessage } from "baileys";
 import { writeFile } from "fs/promises";
 
-export async function XMsg(client: any, messages: WAMessage) {
+export async function XMsg(client: Client, messages: WAMessage) {
     const normalizedMessages = {
         ...messages,
         message: normalizeMessageContent(messages.message),
     };
     const { key, message, ...msg } = normalizedMessages;
     const { user, sendMessage } = client;
-    const { prefix, mode, sudo } = await getConfig();
+    const { prefix, mode, sudo } = getConfig();
     const owner = numToJid(user!.id);
     const sender = isJidGroup(key.remoteJid!) || isJidBroadcast(key.remoteJid!) ? key.participant : key.fromMe ? owner : key.remoteJid;
     const mtype = getContentType(message);
@@ -69,7 +69,7 @@ export async function XMsg(client: any, messages: WAMessage) {
             const allAdmins = metadata.participants.filter((v) => v.admin !== null).map((v) => v.id);
             return !Array.isArray(allAdmins) ? Array.from(allAdmins) : allAdmins.includes(this.owner);
         },
-        send: async function (content: Buffer | string, options: Partial<MessageMisc> = {}) {
+        send: async function (content: string | Buffer, options: Partial<MessageMisc> = {}) {
             const jid = options.jid ?? this.jid;
             const type = options.type as "text" | "audio" | "image" | "video" | "sticker" | "document" | undefined;
             const atype = await getDataType(content);
@@ -81,16 +81,16 @@ export async function XMsg(client: any, messages: WAMessage) {
                         case "text":
                             return { text: content.toString() };
                         case "image":
-                            return { image: Buffer.from(content) };
+                            return { image: Buffer.isBuffer(content) ? content : Buffer.from(content) };
                         case "audio":
-                            return { audio: Buffer.from(content) };
+                            return { audio: Buffer.isBuffer(content) ? content : Buffer.from(content) };
                         case "video":
-                            return { video: Buffer.from(content) };
+                            return { video: Buffer.isBuffer(content) ? content : Buffer.from(content) };
                         case "sticker":
-                            return { sticker: Buffer.from(content) };
+                            return { sticker: Buffer.isBuffer(content) ? content : Buffer.from(content) };
                         case "document":
                             return {
-                                document: Buffer.from(content),
+                                document: Buffer.isBuffer(content) ? content : Buffer.from(content),
                                 mimetype: mimeType || "application/octet-stream",
                             };
                         default:
@@ -102,22 +102,22 @@ export async function XMsg(client: any, messages: WAMessage) {
                     case "text":
                         return { text: content.toString(), ...options };
                     case "image":
-                        return { image: Buffer.from(content), ...options };
+                        return { image: Buffer.isBuffer(content) ? content : Buffer.from(content), ...options };
                     case "audio":
-                        return { audio: Buffer.from(content), ptt: options.ptt, ...options };
+                        return { audio: Buffer.isBuffer(content) ? content : Buffer.from(content), ptt: options.ptt, ...options };
                     case "video":
                         return {
-                            video: Buffer.from(content),
+                            video: Buffer.isBuffer(content) ? content : Buffer.from(content),
                             ptv: options.ptv,
                             gifPlayback: options.gifPlayback,
                             caption: options.caption,
                             ...options,
                         };
                     case "sticker":
-                        return { sticker: Buffer.from(content), ...options };
+                        return { sticker: Buffer.isBuffer(content) ? content : Buffer.from(content), ...options };
                     case "document":
                         return {
-                            document: Buffer.from(content),
+                            document: Buffer.isBuffer(content) ? content : Buffer.from(content),
                             mimetype: options.mimetype || atype.mimeType || "application/octet-stream",
                             fileName: options.fileName,
                             caption: options.caption,
@@ -170,4 +170,4 @@ export async function XMsg(client: any, messages: WAMessage) {
     };
 }
 
-export type XMsg = ReturnType<typeof XMsg> extends Promise<infer T> ? T : never;
+export type XMessage = ReturnType<typeof XMsg> extends Promise<infer T> ? T : undefined;

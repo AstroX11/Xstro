@@ -1,11 +1,11 @@
-import { XMsg, Module } from "../index.mjs";
+import { XMessage, Module } from "../index.mjs";
 
 Module({
     name: "pin",
     fromMe: true,
     desc: "Pin a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.chatModify({ pin: true }, message.jid);
         return message.send("Pined.");
     },
@@ -16,7 +16,7 @@ Module({
     fromMe: true,
     desc: "Unpin a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.chatModify({ pin: false }, message.jid);
         return message.send("Unpined.");
     },
@@ -27,7 +27,7 @@ Module({
     fromMe: true,
     desc: "Archive a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.chatModify({ archive: true, lastMessages: [{ key: message.key, messageTimestamp: message.messageTimestamp }] }, message.jid);
         return message.send("Archived.");
     },
@@ -38,7 +38,7 @@ Module({
     fromMe: true,
     desc: "Unarchive a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.chatModify({ archive: false, lastMessages: [{ key: message.key, messageTimestamp: message.messageTimestamp }] }, message.jid);
         return message.send("Unarchived.");
     },
@@ -49,7 +49,7 @@ Module({
     fromMe: true,
     desc: "Clear a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         await message.chatModify({ delete: true, lastMessages: [{ key: message.key, messageTimestamp: message.messageTimestamp }] }, message.jid);
         return message.send("Cleared.");
     },
@@ -60,7 +60,7 @@ Module({
     fromMe: true,
     desc: "Delete a chat",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         return await message.chatModify({ delete: true, lastMessages: [{ key: message.key, messageTimestamp: message.messageTimestamp }] }, message.jid);
     },
 });
@@ -70,7 +70,7 @@ Module({
     fromMe: true,
     desc: "Star a message",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         if (!message.quoted) {
             return message.send("Reply a message to star");
         }
@@ -86,7 +86,7 @@ Module({
     fromMe: true,
     desc: "Unstar a message",
     type: "chats",
-    function: async (message: XMsg) => {
+    function: async (message: XMessage) => {
         if (!message.quoted) {
             return message.send("Reply a message to unstar");
         }

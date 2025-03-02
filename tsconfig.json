@@ -6,11 +6,17 @@
         "outDir": "release",
         "rootDir": "./src",
         "strictNullChecks": true,
+        "skipLibCheck": true,
         "noImplicitThis": true,
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
         "declaration": true,
-        "removeComments": true
+        "removeComments": true,
+        "paths": {
+            "*": ["./node_modules/*", "./src/*"]
+        },
+        "allowSyntheticDefaultImports": true
     },
-    "include": ["src/**/*.mts"]
+    "include": ["src/**/*.mts"],
+    "exclude": ["app.json", "package.json", "tsconfig.json"]
 }

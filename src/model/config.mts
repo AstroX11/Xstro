@@ -1,19 +1,20 @@
-import { Database } from "sqlite";
 import { getDb } from "./database.mjs";
+import { StatementSync } from "node:sqlite";
 import { Config } from "../index.mjs";
 
-async function initConfigDb(): Promise<void> {
-    const db: Database = await getDb();
-    await db.exec(`
-    CREATE TABLE IF NOT EXISTS config (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      key TEXT NOT NULL,
-      value TEXT NOT NULL,
-      UNIQUE(key)
-    );
-  `);
+function initConfigDb(): void {
+    const db = getDb();
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS config (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            UNIQUE(key)
+        )
+    `);
 
-    const exists = await db.get("SELECT id FROM config LIMIT 1");
+    const stmtCheck: StatementSync = db.prepare("SELECT id FROM config LIMIT 1");
+    const exists = stmtCheck.get() as { id: number } | undefined;
     if (!exists) {
         const defaultConfig = [
             { key: "prefix", value: "." },
@@ -31,19 +32,19 @@ async function initConfigDb(): Promise<void> {
             { key: "banned", value: "[]" },
         ];
 
-        const stmt = await db.prepare("INSERT INTO config (key, value) VALUES (?, ?)");
+        const stmtInsert: StatementSync = db.prepare("INSERT INTO config (key, value) VALUES (?, ?)");
         for (const config of defaultConfig) {
-            await stmt.run(config.key, config.value);
+            stmtInsert.run(config.key, config.value);
         }
-        await stmt.finalize();
     }
 }
 
-export async function getConfig(): Promise<Config> {
-    const db: Database = await getDb();
-    await initConfigDb();
+export function getConfig(): Config {
+    const db = getDb();
+    initConfigDb();
 
-    const rows = await db.all("SELECT key, value FROM config");
+    const stmt: StatementSync = db.prepare("SELECT key, value FROM config");
+    const rows = stmt.all() as { key: string; value: string }[];
     const configMap = Object.fromEntries(rows.map((row) => [row.key, row.value]));
 
     return {
@@ -63,9 +64,9 @@ export async function getConfig(): Promise<Config> {
     };
 }
 
-export async function editConfig(updates: Partial<Config>): Promise<Config | null> {
-    const db: Database = await getDb();
-    await initConfigDb();
+export function editConfig(updates: Partial<Config>): Config | null {
+    const db = getDb();
+    initConfigDb();
 
     const allowedKeys: (keyof Config)[] = [
         "prefix",
@@ -86,7 +87,7 @@ export async function editConfig(updates: Partial<Config>): Promise<Config | nul
     const keys = Object.keys(updates).filter((key) => allowedKeys.includes(key as keyof Config));
     if (!keys.length) return null;
 
-    const stmt = await db.prepare("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)");
+    const stmt: StatementSync = db.prepare("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)");
     for (const key of keys) {
         const value = updates[key as keyof Config];
         let dbValue: string;
@@ -99,9 +100,8 @@ export async function editConfig(updates: Partial<Config>): Promise<Config | nul
             dbValue = String(value);
         }
 
-        await stmt.run(key, dbValue);
+        stmt.run(key, dbValue);
     }
-    await stmt.finalize();
 
     return getConfig();
 }
