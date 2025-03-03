@@ -3,37 +3,22 @@
 > [!IMPORTANT]  
 > An open-source WhatsApp bot designed to automate tasks and deliver services. Built **solely for educational purposes**—please use responsibly!
 
-## Quick Links
-
 [![Fork](https://img.shields.io/badge/Fork-black?style=for-the-badge&logo=git)](https://github.com/AstroX11/Xstro/fork)
 
-[![Custom Session](https://img.shields.io/badge/Auth-black?style=for-the-badge&logo=github)](https://github.com/AstroX11/XstroSession)
+[![Custom Session](https://img.shields.io/badge/Session_Builder?style=for-the-badge&logo=github)](https://github.com/AstroX11/XstroSession)
 
-## Setup
+### Setup
 
-### Prerequisites
+#### Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- [Download Node.js latest Only!](https://nodejs.org/en)
+- [Download Node.js](https://nodejs.org/en)
 - [Download FFmpeg](https://www.ffmpeg.org/)
 - [Download Git](https://git-scm.com/)
-- [Download Docker Recommended](https://www.docker.com/products/docker-desktop/)
+- [Download Docker](https://www.docker.com/products/docker-desktop/)
 
-### Installation Steps
-
-Run these commands in your terminal to get started:
-
-```bash
-git clone https://github.com/AstroX11/Xstro.git
-cd Xstro
-npm install -g yarn
-yarn install
-yarn build
-yarn start
-```
-
-## Using Node.js Platforms
+### Deployments
 
 Run the bot in a pre-configured environment:
 
@@ -45,8 +30,7 @@ Run the bot in a pre-configured environment:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/AstroX11/Xstro)
 
-
-## Contributing
+### Contributing
 
 We welcome contributions from the community! Here’s how you can get involved:
 

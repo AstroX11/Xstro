@@ -2,11 +2,12 @@
 import { Boom } from "@hapi/boom";
 import { makeWASocket, makeCacheableSignalKeyStore, DisconnectReason, Browsers, BufferJSON, WASocket } from "baileys";
 import { EventEmitter } from "events";
+import { DatabaseSync } from "node:sqlite";
 import * as P from "pino";
 
 // Local
 import * as CacheStore from "./store.mjs";
-import { useSQLiteAuthState } from "./use-sqlite-authstate.mjs";
+import { useSqliteAuthState } from "./use-sqlite-authstate.mjs";
 import { XMsg } from "./message.mjs";
 import { Store, chatUpdate, contactUpdate, Msgreceipt, chatUpsert, contactUpsert, groupUpsert, upsertM, groupMetadata, groupSave } from "../model/index.mjs";
 import { runCommand } from "./plugins.mjs";
@@ -20,7 +21,7 @@ export const logger = P.pino({
 });
 
 export const client = async (database?: string): Promise<WASocket> => {
-    const { state, saveCreds } = await useSQLiteAuthState(database ? database : "database.db");
+    const { state, saveCreds } = useSqliteAuthState(new DatabaseSync("database.db"), { enableWAL: true });
     const cache = new CacheStore.default();
     Store();
 
@@ -47,7 +48,7 @@ export const client = async (database?: string): Promise<WASocket> => {
             }
         }
 
-        if (events["creds.update"]) await saveCreds();
+        if (events["creds.update"]) saveCreds();
 
         if (events["messages.upsert"]) {
             const { messages, type, requestId } = events["messages.upsert"];

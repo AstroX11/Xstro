@@ -2,17 +2,13 @@ import * as bot from "./release/index.mjs";
 
 /** Basic setup */
 
-(async (
-    config = {
-        SESSION_ID: undefined,
-        BOT_INFO: undefined,
-        Migrate: false,
-        oldsession: { folder: "", database: "" },
-    }
-) => {
+(async () => {
     await bot.loadPlugins();
-    if (config.Migrate) {
-        await bot.SessionMigrator(config.oldsession.folder, config.oldsession.database, config.SESSION_ID);
-    }
     await bot.client();
 })();
+
+export const INSTANCE_ = {
+    SESSION: process.env.SESSION ?? "" /** Custom session goes here */,
+    BOT_INFO: process.env.BOT_INFO ?? "" /** Settings such as owner's name and bot name*/,
+    WARNS: process.env.WARNS ?? 3 /** Warnings count before taking various security actions */,
+};
