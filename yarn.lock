@@ -1804,9 +1804,9 @@ babylon@^6.18.0:
   integrity sha512-q/UEjfGJ2Cm3oKV71DJz9d25TPnq5rhBVL2Q4fA5wcC3jcrdn7+SssEybFIxwAvvP+YCsCYNKughoF33GxgycQ==
 
 baileys@^6.7.14:
-  version "6.7.14"
-  resolved "https://registry.npmjs.org/baileys/-/baileys-6.7.14.tgz#a460d3ef8648d18b8d790434a950d0ce93675e69"
-  integrity sha512-H1HogmxO7Xh6BQaa1gUfUlVqEfdV09Nhgn5QGNp3jG05LZRtpomjtm0QEbQAkkBM3LXSaAIifc2N+ioxBNBk/Q==
+  version "6.7.15"
+  resolved "https://registry.yarnpkg.com/baileys/-/baileys-6.7.15.tgz#69b5226b35092b3ad05329b5c5a5e714cf0911f0"
+  integrity sha512-/8E2YkN6D8cR7sCs6ucpLWOeP6Omt/moO9qtrs4ZavDCoyuktqwOYPeVJfP9cHWF1G+waZBzR289359NqhDNNg==
   dependencies:
     "@adiwajshing/keyed-db" "^0.2.4"
     "@cacheable/node-cache" "^1.4.0"
