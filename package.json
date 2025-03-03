@@ -74,7 +74,7 @@
         "@hapi/boom": "^10.0.1",
         "baileys": "^6.7.14",
         "cheerio": "^1.0.0",
-        "file-type": "20.2.0",
+        "file-type": "20.4.0",
         "got": "^14.4.6",
         "jiti": "^2.4.2",
         "link-preview-js": "^3.0.14",

@@ -3280,10 +3280,10 @@ file-entry-cache@^8.0.0:
   dependencies:
     flat-cache "^4.0.0"
 
-file-type@20.2.0:
-  version "20.2.0"
-  resolved "https://registry.npmjs.org/file-type/-/file-type-20.2.0.tgz#9c38b599031d99e466fb72d9523d637d16873a6c"
-  integrity sha512-dpL887ofyFe5oaJEjrNvMmKpw39fQlRkbVPoyHSFw+ikEApK9f5SZTGWn0l29Q/hP08dSSWQjXrnNZB0b1yFcA==
+file-type@20.4.0:
+  version "20.4.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-20.4.0.tgz#76efc24eca5c36e0abcb9bf86676b633e7838c71"
+  integrity sha512-+NZeExsi4G6EWaMbSmvBeCoqsj9EqNvOj1o/0uPVPW4O51FSCmxFlNEp/PitsqBMCbax4cGoaYmnUK5FLTuG4g==
   dependencies:
     "@tokenizer/inflate" "^0.2.6"
     strtok3 "^10.2.0"
