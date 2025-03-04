@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@hapi/boom": "^10.0.1",
-        "baileys": "^6.7.15",
+        "baileys": "^6.7.16",
         "cheerio": "^1.0.0",
         "file-type": "20.4.0",
         "got": "^14.4.6",
