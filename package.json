@@ -1,13 +1,13 @@
 {
     "name": "xstro",
-    "version": "7.0.0",
+    "version": "8.0.0",
     "description": "Simple WA bot.",
     "type": "module",
-    "main": "app.ts",
+    "main": "bot.ts",
     "scripts": {
-        "start": "pm2 start app.ts --name xstro --attach --interpreter node",
-        "restart": "yarn stop && yarn start",
-        "dev": "ts-node --esm app.ts",
+        "start": "pm2 start ./dist/bot.ts --name xstro --attach",
+        "dev": "node ./dist/bot.ts",
+        "build": "tsc",
         "stop": "pm2 stop xstro",
         "lint": "yarn run eslint . --fix"
     },
@@ -19,7 +19,6 @@
     "homepage": "https://github.com/AstroX11/xstro#readme",
     "author": "AstroX11 <danielfx0012@gmail.com>",
     "devDependencies": {
-        "@types/better-sqlite3": "^7.6.12",
         "@types/cheerio": "^0.22.35",
         "eslint": "^9.22.0",
         "eslint-config-prettier": "^10.1.1",
@@ -28,21 +27,19 @@
         "prettier": "^3.5.3"
     },
     "dependencies": {
+        "@astrox11/sqlite": "^1.8.5",
         "@hapi/boom": "^10.0.1",
         "baileys": "^6.7.16",
-        "better-sqlite3": "^11.9.1",
         "cheerio": "^1.0.0",
         "dotenv": "^16.4.7",
         "file-type": "20.4.1",
-        "got": "^14.4.6",
-        "link-preview-js": "^3.0.14",
-        "node-webpmux": "^3.2.0",
-        "pino": "^9.6.0",
+        "got": "^14.4.7",
+        "https-proxy-agent": "^7.0.6",
+        "node-webpmux": "^3.2.1",
         "pm2": "^6.0.5",
         "qrcode-terminal": "^0.12.0",
         "sharp": "^0.33.5",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.9.0-dev.20250303"
+        "typescript": "^5.8.2"
     },
     "engines": {
         "node": ">=23"

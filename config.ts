@@ -1,13 +1,12 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
 
-export const environment = {
+config();
+
+export default {
   SESSION: process.env.SESSION ?? '',
-  SESSION_URL: process.env.SESSION_URL ?? '',
-  DATABASE_URI: process.env.DATABASE_URI ?? 'database.db',
-  HUGGING_FACE_KEY: process.env.HUGGING_FACE_KEY ?? '',
-  META_DATA: process.env.META_DATA ?? 'AstroX11;Xstro',
-  TIME_ZONE: process.env.TIME_ZONE || process.env.TZ || '',
-  WARN_COUNT: Number(process.env.WARN_COUNT ?? 3),
-  DEBUG: process.env.DEBUG || false,
+  DATABASE: process.env.DATABASE ?? 'database.db',
+  PROXY_URI: process.env.PROXY_URI ?? '',
+  DEV_MODE: Boolean(process.env.DEV_MODE ?? true),
+  LOGGER: process.env.LOG_LEVEL ?? 'info',
+  PROCESS_NAME: process.env.PROCESS_NAME ?? 'xstro',
 };
