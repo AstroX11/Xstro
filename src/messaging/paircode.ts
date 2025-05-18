@@ -7,7 +7,7 @@ import {
 import { pino } from 'pino';
 import { Boom } from '@hapi/boom';
 
-import config from '../../config.ts';
+import config from '../../config.mjs';
 import lang from '../utils/lang.ts';
 import useSqliteAuthState from '../utils/useSqliteAuthState.ts';
 import { print } from '../utils/constants.ts';

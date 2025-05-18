@@ -1,0 +1,43 @@
+name: Test Dependency Bump (Dry Run)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies (ignore scripts)
+        run: pnpm install --ignore-scripts
+
+      - name: Copy original lockfile
+        run: cp pnpm-lock.yaml pnpm-lock.old.yaml
+
+      - name: Update dependencies to latest
+        run: pnpm -r update --latest
+
+      - name: Show lockfile diff (dry-run)
+        run: git diff --color pnpm-lock.yaml
+
+      - name: Show changed packages
+        run: |
+          echo "=== Changed packages ==="
+          diff pnpm-lock.old.yaml pnpm-lock.yaml || echo "No differences found"
+
+      - name: Done
+        run: echo "Dry run complete. No changes committed."

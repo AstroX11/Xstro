@@ -90,28 +90,39 @@ export function toStandardCase(text: string): string {
 }
 
 export function fancy(text: any): string {
-	// Ensure input is a string
-	text = String(text);
+	const fancyMap: Record<string, string> = {
+		a: 'ᴀ',
+		b: 'ʙ',
+		c: 'ᴄ',
+		d: 'ᴅ',
+		e: 'ᴇ',
+		f: 'ғ',
+		g: 'ɢ',
+		h: 'ʜ',
+		i: 'ɪ',
+		j: 'ᴊ',
+		k: 'ᴋ',
+		l: 'ʟ',
+		m: 'ᴍ',
+		n: 'ɴ',
+		o: 'ᴏ',
+		p: 'ᴘ',
+		q: 'ǫ',
+		r: 'ʀ',
+		s: 's',
+		t: 'ᴛ',
+		u: 'ᴜ',
+		v: 'ᴠ',
+		w: 'ᴡ',
+		x: 'x',
+		y: 'ʏ',
+		z: 'ᴢ',
+	};
+
+	text = String(text).toLowerCase();
 
 	return text
-		.toLowerCase() // Convert to lowercase (if needed)
-		.split('') // Split the string into individual characters
-		.map((char: string) => {
-			const code = char.charCodeAt(0);
-
-			// Check if the character is a letter (a-z)
-			if (code >= 97 && code <= 122) {
-				// a-z → 𝒶 to 𝓏 (Mathematical Bold)
-				return String.fromCodePoint(0x1d41a + (code - 97));
-			}
-
-			// Check if the character is a number (0-9)
-			else if (code >= 48 && code <= 57) {
-				// 0-9 → 𝟶 to 𝟿 (Mathematical Monospace Digits)
-				return String.fromCodePoint(0x1d7f6 + (code - 48));
-			}
-
-			return char; // Leave other characters unchanged
-		})
-		.join(''); // Join the array of characters back into a string
+		.split('')
+		.map((char: string) => fancyMap[char] || char)
+		.join('');
 }

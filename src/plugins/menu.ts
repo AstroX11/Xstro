@@ -1,12 +1,7 @@
 import { Command, commands } from '../messaging/plugin.ts';
 import { platform, totalmem, freemem } from 'node:os';
-import {
-	fancy,
-	formatBytes,
-	formatRuntime,
-	toStandardCase,
-} from '../utils/constants.ts';
-import config from '../../config.ts';
+import { fancy, formatBytes, formatRuntime } from '../utils/constants.ts';
+import config from '../../config.mjs';
 
 Command({
 	name: 'menu',
@@ -20,7 +15,7 @@ Command({
 				!cmd.dontAddCommandList &&
 				!cmd.name.toString().includes('undefined'),
 		).length;
-		let menuInfo = `\`\`\`╭─── ${config.BOT_NAME ?? `χѕтяσ м∂`} ────
+		let menuInfo = `\`\`\`╭─── ${config.BOT_NAME ?? `χѕтяσ`} ────
 │ User: ${message.pushName?.trim() ?? `Unknown`}
 │ Owner: ${config.OWNER_NAME ?? `αѕтяσχ11`}
 │ Plugins: ${cmds}
@@ -53,8 +48,8 @@ Command({
 		sortedTypes.forEach(type => {
 			const sortedCommands = commandsByType[type].sort();
 			menuInfo += `╭──── *${fancy(type)}* ────\n`;
-			sortedCommands.forEach((cmd: unknown) => {
-				menuInfo += `│${fancy(totalCommands as unknown as string)}· ${fancy(cmd as string)}\n`;
+			sortedCommands.forEach((cmd: string) => {
+				menuInfo += `│${fancy(totalCommands as unknown as string)}· ${fancy(cmd)}\n`;
 				totalCommands++;
 			});
 			menuInfo += `╰────────────\n`;

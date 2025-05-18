@@ -8,7 +8,7 @@ import { pino } from 'pino';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import NodeCache from '@cacheable/node-cache';
 
-import config from '../../config.ts';
+import config from '../../config.mjs';
 import emit from './emit.ts';
 import bind from './bind.ts';
 import useSqliteAuthState from '../utils/useSqliteAuthState.ts';

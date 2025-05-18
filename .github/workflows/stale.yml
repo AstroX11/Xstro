@@ -1,0 +1,23 @@
+name: Mark stale issues
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale issues
+        uses: actions/stale@v9
+        with:
+          days-before-stale: 7
+          days-before-close: -1 # Never auto-close
+          stale-issue-message: >
+            This issue has been automatically marked as stale due to 7 days of inactivity.
+            If this is still relevant, please comment or update the issue.
+          stale-issue-label: stale
+          exempt-issue-labels: pinned,keep,important
+          only-issues: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

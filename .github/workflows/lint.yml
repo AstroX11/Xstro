@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  push:
+    paths:
+      - 'src/**/*.ts'
+      - '.github/workflows/lint.yml'
+  pull_request:
+    paths:
+      - 'src/**/*.ts'
+      - '.github/workflows/lint.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack and install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install only ESLint
+        run: |
+          pnpm add -w -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-config-prettier eslint-plugin-prettier jiti
+
+      - name: Run ESLint on .ts files
+        run: pnpm exec eslint "src/**/*.ts"

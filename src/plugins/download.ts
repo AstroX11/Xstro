@@ -1,10 +1,44 @@
 import { fetch, urlBuffer } from '../utils/fetch.mts';
 import { Command } from '../messaging/plugin.ts';
+import { convertToMp3, toPTT } from '../utils/ffmpeg.mts';
+import config from '../../config.mjs';
+import { type WAMediaUpload } from 'baileys';
 
-/**
-TO DO:
-Build a full implemenation of downloaders to the bot
- */
+Command({
+	name: 'apk',
+	fromMe: false,
+	isGroup: false,
+	desc: 'Download Apk file',
+	type: 'download',
+	function: async (msg, args) => {
+		if (!args) return await msg.send(`_Provide an App name_`);
+
+		await msg.react('⬇️');
+
+		const data = await fetch(`https://bk9.fun/download/apk?id=${args}`).then(
+			res =>
+				JSON.parse(res).BK9 as {
+					name?: string;
+					dllink?: string;
+					icon?: string;
+				},
+		);
+		if (data.icon) {
+			await msg.send(await urlBuffer(data.icon), {
+				caption: `_Downloading ${data.name!}_`,
+			});
+		}
+		if (data.name && data.dllink) {
+			await msg.react('✅');
+			return await msg.client.sendMessage(msg.jid, {
+				document: { url: data.dllink },
+				caption: data.name,
+				fileName: data.name.split(' ')[0],
+				mimetype: 'application/vnd.android.package-archive',
+			});
+		}
+	},
+});
 
 Command({
 	name: 'fb',
@@ -67,6 +101,8 @@ Command({
 		const url = /^https?:\/\/(www\.|m\.)?twitter\.com(\/|$)/.test(args ?? '');
 		if (!url || !args) return await msg.send('_Provide a valid twitter link_');
 
+		await msg.react('⬇️');
+
 		const data = await fetch(
 			`https://bk9.fun/download/twitter?url=${new URL(args)}`,
 		).then(res => JSON.parse(res).BK9 as { HD: string; caption: string });
@@ -78,7 +114,7 @@ Command({
 	},
 });
 Command({
-	name: 'mp3',
+	name: 'dmp3',
 	fromMe: false,
 	isGroup: false,
 	desc: 'Download Any Mp3 Media via Link.',
@@ -90,6 +126,8 @@ Command({
 			);
 			return;
 		}
+
+		await msg.react('⬇️');
 
 		try {
 			const url = new URL(args);
@@ -105,7 +143,7 @@ Command({
 });
 
 Command({
-	name: 'mp4',
+	name: 'dmp4',
 	fromMe: false,
 	isGroup: false,
 	desc: 'Download Any Mp4 Media via Link.',
@@ -117,6 +155,8 @@ Command({
 			);
 			return;
 		}
+
+		await msg.react('⬇️');
 
 		try {
 			const url = new URL(args);
@@ -139,6 +179,8 @@ Command({
 	function: async (msg, args) => {
 		const url = /^https?:\/\/(www\.|m\.)?tiktok\.com(\/|$)/.test(args ?? '');
 		if (!url || !args) return await msg.send('_Provide a valid tiktok link_');
+
+		await msg.react('⬇️');
 
 		const data = await fetch(
 			`https://bk9.fun/download/tiktok?url=${new URL(args)}`,
@@ -169,6 +211,53 @@ Command({
 	desc: 'Download Youtube Video Media',
 	type: 'download',
 	function: async (msg, args) => {},
+});
+
+Command({
+	name: 'yta',
+	fromMe: false,
+	isGroup: false,
+	desc: 'Download Youtube Audio Media',
+	type: 'download',
+	function: async (msg, args) => {
+		const url = /^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)(\/|$)/.test(
+			args ?? '',
+		);
+		if (!url || !args) return await msg.send('_Provide a valid youtube link_');
+
+		await msg.react('⬇️');
+
+		const data = await fetch(
+			`https://bk9.fun/download/ytmp3?url=${new URL(args)}&type=mp3`,
+		).then(
+			res =>
+				JSON.parse(res).BK9 as {
+					image?: string;
+					title?: string;
+					downloadUrl?: string;
+				},
+		);
+		const { image, title, downloadUrl } = data;
+
+		const audio: WAMediaUpload = await convertToMp3(
+			await urlBuffer(downloadUrl!),
+		);
+
+		await msg.client.sendMessage(msg.jid, {
+			audio: audio,
+			ptt: false,
+			mimetype: 'audio/mpeg',
+			contextInfo: {
+				externalAdReply: {
+					title: title,
+					body: config.BOT_NAME ?? 'χѕтяσ',
+					mediaType: 1,
+					thumbnailUrl: image,
+				},
+			},
+		});
+		return await msg.react('✅');
+	},
 });
 
 Command({

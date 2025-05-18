@@ -1,9 +1,9 @@
 {
   "name": "xstro",
-  "version": "17.0.0",
+  "version": "18.0.0",
   "description": "Simple WA bot.",
   "type": "module",
-  "main": "main.mts",
+  "main": "serve.mjs",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -15,21 +15,21 @@
     "node": ">=23"
   },
   "scripts": {
-    "start": "tsx main.mts --module nodenext",
+    "start": "node serve.mjs",
     "lint": "eslint --fix"
   },
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@cacheable/node-cache": "^1.5.5",
     "@hapi/boom": "^10.0.1",
-    "baileys": "git+https://github.com/WhiskeySockets/Baileys.git",
+    "baileys": "github:WhiskeySockets/Baileys",
     "cheerio": "^1.0.0",
     "dotenv": "^16.5.0",
     "file-type": "20.5.0",
     "form-data": "^4.0.2",
     "got": "^14.4.7",
     "https-proxy-agent": "^7.0.6",
-    "link-preview-js": "^3.0.14",
+    "link-preview-js": "^3.0.15",
     "node-webpmux": "^3.2.1",
     "pino": "^9.6.0",
     "quantava": "^1.0.0",
@@ -40,7 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
     "@typescript-eslint/utils": "^8.32.1",
-    "eslint": "^9.26.0",
+    "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
     "jiti": "^2.4.2",
