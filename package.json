@@ -35,7 +35,7 @@
 		"https-proxy-agent": "^7.0.6",
 		"link-preview-js": "^3.0.15",
 		"node-webpmux": "^3.2.1",
-		"pino": "^9.6.0",
+		"pino": "^9.7.0",
 		"quantava": "^1.0.0",
 		"sharp": "^0.34.1"
 	},
